@@ -5,6 +5,7 @@ import { google } from '@ai-sdk/google';
 import { loadDomainConfig } from '@/domain.config';
 import { buildSystemPrompt } from './system-prompt';
 import { buildTools } from './tool-registry';
+import { runMockAgentLoop } from './mock-loop';
 import type { SSEEvent, ChatMessage } from '@/types';
 
 function getModel() {
@@ -25,6 +26,10 @@ export async function runAgentLoop(
   sessionId: string,
   send: (event: SSEEvent) => void
 ): Promise<void> {
+  if (process.env.MOCK_LLM === 'true') {
+    return runMockAgentLoop(messages, sessionId, send);
+  }
+
   const domain = loadDomainConfig();
   const systemPrompt = buildSystemPrompt(domain);
   const tools = buildTools(domain, sessionId, send);

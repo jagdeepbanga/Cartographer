@@ -1,5 +1,6 @@
 'use client';
 
+import ProductImage from './ProductImage';
 import type { CartItem } from '@/types';
 
 type Props = {
@@ -24,11 +25,24 @@ export default function CartPanel({ items }: Props) {
           <p className="text-xs text-gray-400">No items yet. Start chatting to build your cart.</p>
         )}
         {items.map((item) => (
-          <div key={item.id} className="flex justify-between items-start gap-2">
-            <div>
-              <p className="text-xs font-medium text-gray-800 leading-snug">{item.product?.name ?? 'Product'}</p>
-              <p className="text-xs text-gray-400">{item.product?.brand}</p>
+          <div key={item.id} className="flex items-center gap-3">
+            {/* Thumbnail */}
+            <div className="w-12 h-12 rounded-lg overflow-hidden shrink-0">
+              <ProductImage
+                category={item.product?.category ?? ''}
+                brand={item.product?.brand}
+                size="sm"
+              />
             </div>
+
+            {/* Name + price */}
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-medium text-gray-800 leading-snug line-clamp-2">
+                {item.product?.name ?? 'Product'}
+              </p>
+              <p className="text-xs text-gray-400 mt-0.5">{item.product?.brand}</p>
+            </div>
+
             <span className="text-xs font-semibold text-gray-900 whitespace-nowrap">
               ${item.product ? Number(item.product.price).toFixed(2) : '—'}
             </span>

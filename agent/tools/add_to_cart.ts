@@ -9,9 +9,14 @@ export async function executeAddToCart(input: AddToCartInput): Promise<CartItem>
   );
 
   const result = await db.query<CartItem>(
-    `INSERT INTO cart_items (session_id, product_id, quantity)
-     VALUES ($1, $2, $3)
-     RETURNING id, session_id, product_id, quantity, added_at`,
+    `WITH inserted AS (
+       INSERT INTO cart_items (session_id, product_id, quantity)
+       VALUES ($1, $2, $3)
+       RETURNING id, session_id, product_id, quantity, added_at
+     )
+     SELECT i.*, row_to_json(p) AS product
+     FROM inserted i
+     JOIN products p ON p.id = i.product_id`,
     [input.session_id, input.product_id, input.quantity ?? 1]
   );
 

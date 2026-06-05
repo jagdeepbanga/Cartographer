@@ -27,11 +27,11 @@ export default function ChatWindow({ sessionId, onCartUpdate }: Props) {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  async function sendMessage() {
-    if (!input.trim() || loading) return;
+  async function sendMessage(overrideText?: string) {
+    const userText = (overrideText ?? input).trim();
+    if (!userText || loading) return;
 
-    const userText = input.trim();
-    setInput('');
+    if (!overrideText) setInput('');
     setLoading(true);
 
     const newHistory: ChatMessage[] = [...history, { role: 'user', content: userText }];
@@ -102,8 +102,7 @@ export default function ChatWindow({ sessionId, onCartUpdate }: Props) {
   }
 
   function handleProductChoose(product: Product) {
-    const text = `I'd like the ${product.name}`;
-    setInput(text);
+    sendMessage(`I'd like the ${product.name}`);
   }
 
   return (
@@ -176,7 +175,7 @@ export default function ChatWindow({ sessionId, onCartUpdate }: Props) {
           className="flex-1 resize-none rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-800 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
         />
         <button
-          onClick={sendMessage}
+          onClick={() => sendMessage()}
           disabled={loading || !input.trim()}
           className="rounded-xl bg-gray-900 text-white text-sm font-medium px-5 py-3 hover:bg-gray-700 disabled:opacity-40 transition-colors"
         >

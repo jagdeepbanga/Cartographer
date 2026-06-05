@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "db:seed": "tsx --env-file=.env.local db/seed/run.ts"
+    "db:seed": "tsx --env-file=.env.local db/seed/run.ts",
+    "db:reset": "tsx --env-file=.env.local db/seed/reset.ts"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.81",

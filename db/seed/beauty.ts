@@ -1,3 +1,8 @@
+// picsum.photos/seed/{name}/w/h — returns a consistent image per seed string
+function img(seed: string) {
+  return `https://picsum.photos/seed/${encodeURIComponent(seed)}/400/400`;
+}
+
 export const beautyProducts = [
   // Cleansers
   {
@@ -6,6 +11,7 @@ export const beautyProducts = [
     category: 'cleanser',
     price: 18.99,
     description: 'A gentle, non-foaming cleanser that hydrates while cleansing. Contains ceramides and hyaluronic acid. Dermatologist recommended for dry to normal skin.',
+    image_url: img('cerave-cleanser'),
     attributes: { skin_type: 'dry', fragrance_free: true, cruelty_free: false },
   },
   {
@@ -14,6 +20,7 @@ export const beautyProducts = [
     category: 'cleanser',
     price: 24.95,
     description: 'Ultra-gentle cleanser for sensitive and dry skin. Soap-free, fragrance-free formula that maintains the skin barrier.',
+    image_url: img('laroche-toleriane-cleanser'),
     attributes: { skin_type: 'sensitive', fragrance_free: true, cruelty_free: false },
   },
   {
@@ -22,6 +29,7 @@ export const beautyProducts = [
     category: 'cleanser',
     price: 9.99,
     description: 'No artificial perfume or harsh chemicals. Contains triple-purified water and skin-loving ingredients.',
+    image_url: img('simple-facial-wash'),
     attributes: { skin_type: 'sensitive', fragrance_free: true, cruelty_free: true },
   },
   {
@@ -30,6 +38,7 @@ export const beautyProducts = [
     category: 'cleanser',
     price: 14.49,
     description: 'Salicylic acid cleanser that fights breakouts while gently cleansing skin. Oil-free formula ideal for acne-prone and oily skin.',
+    image_url: img('neutrogena-acne-wash'),
     attributes: { skin_type: 'oily', fragrance_free: false, cruelty_free: false },
   },
   {
@@ -38,6 +47,7 @@ export const beautyProducts = [
     category: 'cleanser',
     price: 16.99,
     description: 'Clinically proven gentle formula suitable for all skin types. Soap-free and non-irritating.',
+    image_url: img('cetaphil-gentle-cleanser'),
     attributes: { skin_type: 'all', fragrance_free: true, cruelty_free: false },
   },
   {
@@ -46,14 +56,16 @@ export const beautyProducts = [
     category: 'cleanser',
     price: 12.50,
     description: 'A gentle, balancing cleanser formulated with squalane. Removes makeup and impurities without stripping moisture.',
+    image_url: img('ordinary-squalane-cleanser'),
     attributes: { skin_type: 'dry', fragrance_free: true, cruelty_free: true },
   },
   {
-    name: 'Paula\'s Choice RESIST Perfectly Balanced Foaming Cleanser',
+    name: "Paula's Choice RESIST Perfectly Balanced Foaming Cleanser",
     brand: "Paula's Choice",
     category: 'cleanser',
     price: 32.00,
     description: 'Lightweight foaming cleanser for normal to oily skin. Removes excess oil and impurities without over-drying.',
+    image_url: img('paulas-choice-foaming-cleanser'),
     attributes: { skin_type: 'oily', fragrance_free: true, cruelty_free: true },
   },
   {
@@ -62,6 +74,7 @@ export const beautyProducts = [
     category: 'cleanser',
     price: 22.95,
     description: 'Iconic micellar water that gently removes makeup and cleanses sensitive skin. No rinsing required.',
+    image_url: img('bioderma-sensibio-micellar'),
     attributes: { skin_type: 'sensitive', fragrance_free: true, cruelty_free: false },
   },
 
@@ -72,6 +85,7 @@ export const beautyProducts = [
     category: 'moisturiser',
     price: 22.99,
     description: 'Rich, non-greasy moisturiser with ceramides and MVE technology for 24-hour hydration. Ideal for dry to very dry skin.',
+    image_url: img('cerave-moisturising-cream'),
     attributes: { skin_type: 'dry', fragrance_free: true, cruelty_free: false },
   },
   {
@@ -80,6 +94,7 @@ export const beautyProducts = [
     category: 'moisturiser',
     price: 29.99,
     description: 'Lightweight water-gel moisturiser with hyaluronic acid. Oil-free formula that keeps skin hydrated all day.',
+    image_url: img('neutrogena-hydro-boost'),
     attributes: { skin_type: 'oily', fragrance_free: false, cruelty_free: false },
   },
   {
@@ -88,6 +103,7 @@ export const beautyProducts = [
     category: 'moisturiser',
     price: 39.95,
     description: 'Restores the skin barrier and provides 48-hour hydration. Contains ceramides and niacinamide.',
+    image_url: img('laroche-toleriane-double-repair'),
     attributes: { skin_type: 'sensitive', fragrance_free: true, cruelty_free: false },
   },
   {
@@ -96,6 +112,7 @@ export const beautyProducts = [
     category: 'moisturiser',
     price: 26.99,
     description: 'Lightweight gel moisturiser with prebiotic oat and feverfew. Calms and restores sensitive skin.',
+    image_url: img('aveeno-calm-restore-gel'),
     attributes: { skin_type: 'sensitive', fragrance_free: true, cruelty_free: false },
   },
   {
@@ -104,6 +121,7 @@ export const beautyProducts = [
     category: 'moisturiser',
     price: 10.90,
     description: 'Affordable daily moisturiser combining amino acids, fatty acids, and hyaluronic acid to maintain skin barrier.',
+    image_url: img('ordinary-nmf-ha'),
     attributes: { skin_type: 'all', fragrance_free: true, cruelty_free: true },
   },
   {
@@ -112,6 +130,7 @@ export const beautyProducts = [
     category: 'moisturiser',
     price: 52.00,
     description: 'Lightweight yet intensely moisturising formula that absorbs quickly. Provides 24-hour hydration in all climates.',
+    image_url: img('kiehls-ultra-facial-cream'),
     attributes: { skin_type: 'all', fragrance_free: false, cruelty_free: false },
   },
   {
@@ -120,6 +139,7 @@ export const beautyProducts = [
     category: 'moisturiser',
     price: 89.00,
     description: 'Oil-free water cream that controls shine and minimises pores. Contains Japanese wild rose and leopard lily.',
+    image_url: img('tatcha-water-cream'),
     attributes: { skin_type: 'oily', fragrance_free: false, cruelty_free: true },
   },
 
@@ -130,6 +150,7 @@ export const beautyProducts = [
     category: 'spf',
     price: 36.95,
     description: 'Ultra-light, fast-absorbing SPF50+ sunscreen. Water-resistant, non-comedogenic. Suitable for sensitive skin.',
+    image_url: img('laroche-anthelios-spf50'),
     attributes: { skin_type: 'sensitive', spf_rating: 50, fragrance_free: false, cruelty_free: false },
   },
   {
@@ -138,6 +159,7 @@ export const beautyProducts = [
     category: 'spf',
     price: 5.99,
     description: 'Dermatologist-developed SPF50 at an affordable price. Lightweight, water-resistant formula.',
+    image_url: img('altruist-spf50'),
     attributes: { skin_type: 'all', spf_rating: 50, fragrance_free: false, cruelty_free: true },
   },
   {
@@ -146,6 +168,7 @@ export const beautyProducts = [
     category: 'spf',
     price: 49.95,
     description: 'Oil-free, lightweight sunscreen with niacinamide. Ideal for acne-prone and rosacea-prone skin.',
+    image_url: img('eltamd-uv-clear-spf46'),
     attributes: { skin_type: 'oily', spf_rating: 46, fragrance_free: true, cruelty_free: true },
   },
   {
@@ -154,6 +177,7 @@ export const beautyProducts = [
     category: 'spf',
     price: 19.99,
     description: 'Ultra-light, non-greasy sunscreen that leaves a matte finish. Broad-spectrum protection.',
+    image_url: img('neutrogena-ultra-sheer-spf'),
     attributes: { skin_type: 'oily', spf_rating: 50, fragrance_free: false, cruelty_free: false },
   },
   {
@@ -162,6 +186,7 @@ export const beautyProducts = [
     category: 'spf',
     price: 16.99,
     description: 'Australian-made daily moisturiser with SPF50. Fragrance-free, non-greasy formula.',
+    image_url: img('bondi-sands-spf50'),
     attributes: { skin_type: 'all', spf_rating: 50, fragrance_free: true, cruelty_free: true },
   },
   {
@@ -170,6 +195,7 @@ export const beautyProducts = [
     category: 'spf',
     price: 46.00,
     description: 'Luxurious SPF50+ serum-sunscreen hybrid with a luminising finish. Australian-owned, vegan.',
+    image_url: img('ultra-violette-queen-screen'),
     attributes: { skin_type: 'dry', spf_rating: 50, fragrance_free: false, cruelty_free: true },
   },
   {
@@ -178,6 +204,7 @@ export const beautyProducts = [
     category: 'spf',
     price: 29.95,
     description: 'Mineral sunscreen with a light tint for natural coverage. Zinc oxide formula for sensitive skin.',
+    image_url: img('invisible-zinc-tinted-spf30'),
     attributes: { skin_type: 'sensitive', spf_rating: 30, fragrance_free: true, cruelty_free: true },
   },
 
@@ -188,6 +215,7 @@ export const beautyProducts = [
     category: 'serum',
     price: 11.90,
     description: 'Hydration support formula with multiple molecular weights of hyaluronic acid. Plumps and hydrates skin.',
+    image_url: img('ordinary-hyaluronic-acid-b5'),
     attributes: { skin_type: 'all', fragrance_free: true, cruelty_free: true },
   },
   {
@@ -196,6 +224,7 @@ export const beautyProducts = [
     category: 'serum',
     price: 11.90,
     description: 'High-strength vitamin B3 serum that reduces pore appearance and blemishes. Controls sebum production.',
+    image_url: img('ordinary-niacinamide-zinc'),
     attributes: { skin_type: 'oily', fragrance_free: true, cruelty_free: true },
   },
   {
@@ -204,6 +233,7 @@ export const beautyProducts = [
     category: 'serum',
     price: 49.95,
     description: '10% pure vitamin C serum for radiance and anti-ageing. Suitable for sensitive skin.',
+    image_url: img('laroche-vitamin-c10-serum'),
     attributes: { skin_type: 'sensitive', fragrance_free: true, cruelty_free: false },
   },
   {
@@ -212,6 +242,7 @@ export const beautyProducts = [
     category: 'serum',
     price: 59.00,
     description: 'Concentrated niacinamide booster that minimises pores and improves skin tone. Fragrance-free.',
+    image_url: img('paulas-choice-niacinamide-booster'),
     attributes: { skin_type: 'combination', fragrance_free: true, cruelty_free: true },
   },
   {
@@ -220,6 +251,7 @@ export const beautyProducts = [
     category: 'serum',
     price: 98.00,
     description: 'Potent vitamin C serum with 15% L-ascorbic acid. Brightens, firms, and repairs skin.',
+    image_url: img('drunk-elephant-c-firma'),
     attributes: { skin_type: 'all', fragrance_free: false, cruelty_free: true },
   },
   {
@@ -227,7 +259,8 @@ export const beautyProducts = [
     brand: 'Estée Lauder',
     category: 'serum',
     price: 115.00,
-    description: 'Iconic overnight repair serum that targets multiple signs of ageing. Supports skin\'s natural renewal cycle.',
+    description: "Iconic overnight repair serum that targets multiple signs of ageing. Supports skin's natural renewal cycle.",
+    image_url: img('estee-lauder-night-repair'),
     attributes: { skin_type: 'all', fragrance_free: false, cruelty_free: false },
   },
 
@@ -238,6 +271,7 @@ export const beautyProducts = [
     category: 'toner',
     price: 43.00,
     description: 'Cult-favourite BHA exfoliant that unclogs pores and smooths skin. Gentle enough for daily use.',
+    image_url: img('paulas-choice-bha-exfoliant'),
     attributes: { skin_type: 'oily', fragrance_free: true, cruelty_free: true },
   },
   {
@@ -246,6 +280,7 @@ export const beautyProducts = [
     category: 'toner',
     price: 16.99,
     description: 'Alcohol-free witch hazel toner with aloe vera. Cleanses and tones without over-drying.',
+    image_url: img('thayers-witch-hazel-toner'),
     attributes: { skin_type: 'combination', fragrance_free: false, cruelty_free: true },
   },
   {
@@ -254,6 +289,7 @@ export const beautyProducts = [
     category: 'toner',
     price: 29.00,
     description: '5% glycolic acid toning solution that gently exfoliates and brightens. Leaves skin glowing.',
+    image_url: img('pixi-glow-tonic'),
     attributes: { skin_type: 'combination', fragrance_free: false, cruelty_free: true },
   },
   {
@@ -262,6 +298,7 @@ export const beautyProducts = [
     category: 'toner',
     price: 14.90,
     description: 'Exfoliating toner with 7% glycolic acid. Smooths skin texture and improves radiance.',
+    image_url: img('ordinary-glycolic-acid-toner'),
     attributes: { skin_type: 'combination', fragrance_free: true, cruelty_free: true },
   },
   {
@@ -270,6 +307,7 @@ export const beautyProducts = [
     category: 'toner',
     price: 29.95,
     description: 'Micro-exfoliating toner with glycolic and salicylic acid. Minimises pores and reduces blemishes.',
+    image_url: img('laroche-effaclar-lotion'),
     attributes: { skin_type: 'oily', fragrance_free: true, cruelty_free: false },
   },
   {
@@ -278,6 +316,7 @@ export const beautyProducts = [
     category: 'toner',
     price: 42.00,
     description: 'Alcohol-free toner with calendula flower petals. Calms skin and prepares it for moisturiser.',
+    image_url: img('kiehls-calendula-toner'),
     attributes: { skin_type: 'sensitive', fragrance_free: false, cruelty_free: false },
   },
 
@@ -288,6 +327,7 @@ export const beautyProducts = [
     category: 'eye cream',
     price: 19.99,
     description: 'Fragrance-free eye cream with ceramides and hyaluronic acid. Reduces puffiness and dark circles.',
+    image_url: img('cerave-eye-repair-cream'),
     attributes: { skin_type: 'all', fragrance_free: true, cruelty_free: false },
   },
   {
@@ -296,6 +336,7 @@ export const beautyProducts = [
     category: 'eye cream',
     price: 32.99,
     description: 'Multi-action eye cream for dark circles, puffiness, and fine lines. With vitamin B3 and antioxidants.',
+    image_url: img('olay-ultimate-eye-cream'),
     attributes: { skin_type: 'all', fragrance_free: false, cruelty_free: false },
   },
   {
@@ -304,14 +345,16 @@ export const beautyProducts = [
     category: 'eye cream',
     price: 58.00,
     description: 'Rich, ultra-moisturising eye cream with avocado oil and shea butter. For dry, delicate skin around the eyes.',
+    image_url: img('kiehls-avocado-eye-cream'),
     attributes: { skin_type: 'dry', fragrance_free: false, cruelty_free: false },
   },
   {
-    name: "RoC Retinol Correxion Line Smoothing Eye Cream",
+    name: 'RoC Retinol Correxion Line Smoothing Eye Cream',
     brand: 'RoC',
     category: 'eye cream',
     price: 29.95,
-    description: 'Anti-ageing eye cream with retinol that visibly smooths fine lines and crow\'s feet.',
+    description: "Anti-ageing eye cream with retinol that visibly smooths fine lines and crow's feet.",
+    image_url: img('roc-retinol-eye-cream'),
     attributes: { skin_type: 'all', fragrance_free: false, cruelty_free: false },
   },
   {
@@ -320,6 +363,7 @@ export const beautyProducts = [
     category: 'eye cream',
     price: 14.99,
     description: 'Lightweight eye cream with caffeine that reduces puffiness and dark circles. Fast-absorbing formula.',
+    image_url: img('inkey-list-caffeine-eye-cream'),
     attributes: { skin_type: 'all', fragrance_free: true, cruelty_free: true },
   },
 ];
