@@ -276,7 +276,7 @@ Tools are assembled dynamically in `agent/tool-registry.ts` — the `search_prod
 ### Phase 2 — Real data + semantic search
 
 **Done when:**
-- [ ] Real product dataset imported (Sephora/Kaggle or Adore Beauty-adjacent source)
+- [ ] Real product dataset imported (Kaggle source)
 - [ ] pgvector extension enabled; product descriptions embedded and stored
 - [ ] `search_products` uses vector similarity search instead of exact JSONB match
 - [ ] Search quality visibly improves (fuzzy queries like "gentle morning wash" find relevant cleansers)

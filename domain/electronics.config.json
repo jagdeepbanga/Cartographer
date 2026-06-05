@@ -1,0 +1,32 @@
+{
+  "domain": "electronics",
+  "label": "Electronics",
+  "categories": ["laptop", "monitor", "keyboard", "mouse", "headphones"],
+  "facets": [
+    {
+      "key": "brand",
+      "label": "Brand",
+      "type": "string"
+    },
+    {
+      "key": "ram",
+      "label": "RAM",
+      "type": "string"
+    },
+    {
+      "key": "storage",
+      "label": "Storage",
+      "type": "string"
+    },
+    {
+      "key": "screen_size",
+      "label": "Screen size (inches)",
+      "type": "number"
+    },
+    {
+      "key": "price",
+      "label": "Price (AUD)",
+      "type": "number"
+    }
+  ]
+}

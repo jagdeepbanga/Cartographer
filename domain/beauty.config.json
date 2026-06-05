@@ -1,0 +1,33 @@
+{
+  "domain": "beauty",
+  "label": "Beauty & Skincare",
+  "categories": ["cleanser", "moisturiser", "spf", "serum", "toner", "eye cream"],
+  "facets": [
+    {
+      "key": "skin_type",
+      "label": "Skin type",
+      "type": "enum",
+      "values": ["dry", "oily", "sensitive", "combination", "all"]
+    },
+    {
+      "key": "fragrance_free",
+      "label": "Fragrance-free",
+      "type": "boolean"
+    },
+    {
+      "key": "spf_rating",
+      "label": "SPF rating",
+      "type": "number"
+    },
+    {
+      "key": "cruelty_free",
+      "label": "Cruelty-free",
+      "type": "boolean"
+    },
+    {
+      "key": "price",
+      "label": "Price (AUD)",
+      "type": "number"
+    }
+  ]
+}
