@@ -1,5 +1,6 @@
 import { tool } from 'ai';
 import { z } from 'zod';
+import { getProductLimit } from '@/lib/config';
 import type { DomainConfig, SSEEvent, CartItem, ShoppingPlan } from '@/types';
 import { executeCreateShoppingPlan } from './tools/create_shopping_plan';
 import { executeSearchProducts } from './tools/search_products';
@@ -52,7 +53,7 @@ export function buildTools(
     }),
 
     search_products: tool({
-      description: 'Search the product catalogue for a category. Returns exactly 3 results.',
+      description: `Search the product catalogue for a category. Returns exactly ${getProductLimit()} results.`,
       inputSchema: z.object({
         category: z.enum(domain.categories as [string, ...string[]]),
         filters: z.object(facetShape).optional(),
@@ -61,7 +62,7 @@ export function buildTools(
         const products = await executeSearchProducts({
           category: input.category,
           filters: (input.filters ?? {}) as Record<string, string | number | boolean>,
-          limit: 3,
+          limit: getProductLimit(),
         });
         send({ type: 'product_options', products });
         return products;

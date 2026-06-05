@@ -34,17 +34,22 @@ export default function ProductModal({ product, onChoose, onClose }: Props) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 z-50 flex items-end md:items-center justify-center md:p-4"
       onClick={onClose}
     >
       {/* Backdrop */}
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
 
-      {/* Modal */}
+      {/* Modal — bottom sheet on mobile, centered card on desktop */}
       <div
-        className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden"
+        className="relative bg-white w-full md:max-w-md rounded-t-2xl md:rounded-2xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
+        {/* Drag handle (mobile only) */}
+        <div className="flex justify-center pt-3 pb-1 md:hidden">
+          <div className="w-10 h-1 rounded-full bg-gray-300" />
+        </div>
+
         {/* Close button */}
         <button
           onClick={onClose}
@@ -54,12 +59,12 @@ export default function ProductModal({ product, onChoose, onClose }: Props) {
         </button>
 
         {/* Product image */}
-        <div className="h-52">
+        <div className="h-44 md:h-52 shrink-0">
           <ProductImage category={product.category} brand={product.brand} size="lg" />
         </div>
 
-        {/* Details */}
-        <div className="p-5 space-y-4">
+        {/* Details — scrollable on mobile */}
+        <div className="p-5 space-y-4 overflow-y-auto">
           <div>
             <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest">{product.brand}</p>
             <h2 className="text-lg font-bold text-gray-900 leading-snug mt-1">{product.name}</h2>

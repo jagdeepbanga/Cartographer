@@ -30,9 +30,10 @@ export async function executeSearchProducts(input: SearchProductsInput): Promise
     FROM products
     WHERE ${where}
     ORDER BY price ASC
-    LIMIT 3
+    LIMIT $${paramIndex}
   `;
 
+  params.push(input.limit);
   const result = await db.query<Product>(query, params);
   return result.rows;
 }

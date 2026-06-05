@@ -1,4 +1,5 @@
 import { loadDomainConfig } from '@/domain.config';
+import { getProductLimit } from '@/lib/config';
 import { db } from '@/db/client';
 import { executeCreateShoppingPlan } from './tools/create_shopping_plan';
 import { executeSearchProducts } from './tools/search_products';
@@ -50,7 +51,7 @@ export async function runMockAgentLoop(
 
     if (nextCategory) {
       await streamWords(` Now let's find you a ${nextCategory}.`, send);
-      const nextProducts = await executeSearchProducts({ category: nextCategory, filters: {}, limit: 3 });
+      const nextProducts = await executeSearchProducts({ category: nextCategory, filters: {}, limit: getProductLimit() });
       send({ type: 'product_options', products: nextProducts });
       await streamWords(`Here are my top picks. Which one suits you?`, send);
     } else {
@@ -89,7 +90,7 @@ export async function runMockAgentLoop(
   const firstProducts = await executeSearchProducts({
     category: planCategories[0],
     filters: {},
-    limit: 3,
+    limit: getProductLimit(),
   });
   send({ type: 'product_options', products: firstProducts });
   await streamWords(`Here are my top picks. Which one would you like?`, send);

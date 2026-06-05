@@ -108,7 +108,7 @@ export default function ChatWindow({ sessionId, onCartUpdate }: Props) {
   return (
     <div className="flex flex-col flex-1 overflow-hidden">
       {/* Message list */}
-      <div className="flex-1 overflow-y-auto px-6 py-6 space-y-5">
+      <div className="flex-1 overflow-y-auto px-4 md:px-6 py-4 md:py-6 space-y-5">
         {messages.length === 0 && (
           <div className="text-center text-gray-400 text-sm mt-16">
             <p className="font-medium text-gray-600">Welcome to Cartographer</p>
@@ -160,7 +160,7 @@ export default function ChatWindow({ sessionId, onCartUpdate }: Props) {
       </div>
 
       {/* Input bar */}
-      <div className="border-t border-gray-100 px-4 py-3 flex gap-3 items-end">
+      <div className="border-t border-gray-100 px-4 pt-3 pb-[max(12px,env(safe-area-inset-bottom))] flex gap-3 items-end bg-white">
         <textarea
           value={input}
           onChange={(e) => setInput(e.target.value)}
