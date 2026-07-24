@@ -27,16 +27,17 @@ export default function ChatWindow({ sessionId, onCartUpdate }: Props) {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  async function sendMessage(overrideText?: string) {
-    const userText = (overrideText ?? input).trim();
-    if (!userText || loading) return;
+  async function sendMessage(overrideText?: string, backendText?: string) {
+    const displayText = (overrideText ?? input).trim();
+    const sendText = (backendText ?? overrideText ?? input).trim();
+    if (!displayText || loading) return;
 
     if (!overrideText) setInput('');
     setLoading(true);
 
-    const newHistory: ChatMessage[] = [...history, { role: 'user', content: userText }];
+    const newHistory: ChatMessage[] = [...history, { role: 'user', content: sendText }];
     setHistory(newHistory);
-    setMessages((prev) => [...prev, { kind: 'user', text: userText }]);
+    setMessages((prev) => [...prev, { kind: 'user', text: displayText }]);
 
     // Add a streaming agent message placeholder
     const agentIndex = messages.length + 1;
@@ -55,6 +56,7 @@ export default function ChatWindow({ sessionId, onCartUpdate }: Props) {
       const decoder = new TextDecoder();
       let buffer = '';
       let agentText = '';
+      let turnMessages: ChatMessage[] = [];
 
       while (true) {
         const { done, value } = await reader.read();
@@ -82,6 +84,7 @@ export default function ChatWindow({ sessionId, onCartUpdate }: Props) {
           } else if (event.type === 'cart_updated') {
             onCartUpdate(event.item);
           } else if (event.type === 'done') {
+            turnMessages = event.messages;
             setMessages((prev) => {
               const next = [...prev];
               if (next[agentIndex]?.kind === 'agent') {
@@ -93,7 +96,9 @@ export default function ChatWindow({ sessionId, onCartUpdate }: Props) {
         }
       }
 
-      setHistory((prev) => [...prev, { role: 'assistant', content: agentText }]);
+      // Use the server's exact tool calls/results for history instead of the
+      // rendered text, so the model sees what it actually did on the next turn.
+      setHistory((prev) => [...prev, ...turnMessages]);
     } catch (err) {
       console.error(err);
     } finally {
@@ -102,7 +107,7 @@ export default function ChatWindow({ sessionId, onCartUpdate }: Props) {
   }
 
   function handleProductChoose(product: Product) {
-    sendMessage(`I'd like the ${product.name}`);
+    sendMessage(`I'd like the ${product.name}`, `I'd like the ${product.name} (product_id: ${product.id})`);
   }
 
   return (

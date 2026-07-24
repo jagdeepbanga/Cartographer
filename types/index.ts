@@ -1,3 +1,5 @@
+import type { ModelMessage } from 'ai';
+
 export type DomainFacet = {
   key: string;
   label: string;
@@ -46,10 +48,10 @@ export type ShoppingPlan = {
   categories: ShoppingPlanCategory[];
 };
 
-export type ChatMessage = {
-  role: 'user' | 'assistant';
-  content: string;
-};
+// A full conversation turn as understood by the AI SDK — preserves tool
+// calls and tool results across turns, not just the rendered text, so the
+// model can see exactly what it did instead of reconstructing state from prose.
+export type ChatMessage = ModelMessage;
 
 // Tool input types
 export type CreateShoppingPlanInput = {
@@ -80,5 +82,5 @@ export type SSEEvent =
   | { type: 'product_options'; products: Product[] }
   | { type: 'shopping_plan'; plan: ShoppingPlan }
   | { type: 'cart_updated'; item: CartItem }
-  | { type: 'done' }
+  | { type: 'done'; messages: ChatMessage[] }
   | { type: 'error'; message: string };

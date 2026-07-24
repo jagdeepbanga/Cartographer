@@ -1,11 +1,11 @@
-import type { SSEEvent } from '@/types';
+import type { SSEEvent, ChatMessage } from '@/types';
 
 export function encodeSSE(event: SSEEvent): string {
   return `data: ${JSON.stringify(event)}\n\n`;
 }
 
 export function createSSEStream(
-  handler: (send: (event: SSEEvent) => void) => Promise<void>
+  handler: (send: (event: SSEEvent) => void) => Promise<ChatMessage[]>
 ): Response {
   const encoder = new TextEncoder();
 
@@ -16,8 +16,8 @@ export function createSSEStream(
       };
 
       try {
-        await handler(send);
-        send({ type: 'done' });
+        const messages = await handler(send);
+        send({ type: 'done', messages });
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Unknown error';
         send({ type: 'error', message });

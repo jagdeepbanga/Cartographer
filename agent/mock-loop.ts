@@ -14,6 +14,10 @@ async function streamWords(text: string, send: (event: SSEEvent) => void) {
   }
 }
 
+function textOf(content: ChatMessage['content']): string {
+  return typeof content === 'string' ? content : '';
+}
+
 async function findProductByName(name: string): Promise<Product | null> {
   const result = await db.query<Product>(
     `SELECT id, name, brand, category, price, description, image_url, attributes, in_stock
@@ -27,13 +31,19 @@ export async function runMockAgentLoop(
   messages: ChatMessage[],
   sessionId: string,
   send: (event: SSEEvent) => void
-): Promise<void> {
+): Promise<ChatMessage[]> {
   const domain = loadDomainConfig();
-  const lastMessage = messages[messages.length - 1]?.content ?? '';
+  const lastMessage = textOf(messages[messages.length - 1]?.content);
+
+  let said = '';
+  async function say(text: string) {
+    said += text;
+    await streamWords(text, send);
+  }
 
   // Count how many products the customer has already chosen
   const chosenCount = messages.filter(
-    (m) => m.role === 'user' && m.content.startsWith("I'd like the ")
+    (m) => m.role === 'user' && textOf(m.content).startsWith("I'd like the ")
   ).length;
 
   // ── Customer is choosing a product ──────────────────────────────────────────
@@ -44,24 +54,23 @@ export async function runMockAgentLoop(
     if (product) {
       const cartItem = await executeAddToCart({ product_id: product.id, session_id: sessionId, quantity: 1 });
       send({ type: 'cart_updated', item: cartItem });
-      await streamWords(`Great choice! **${product.name}** has been added to your cart.`, send);
+      await say(`Great choice! **${product.name}** has been added to your cart.`);
     }
 
     const nextCategory = domain.categories[chosenCount];
 
     if (nextCategory) {
-      await streamWords(` Now let's find you a ${nextCategory}.`, send);
+      await say(` Now let's find you a ${nextCategory}.`);
       const nextProducts = await executeSearchProducts({ category: nextCategory, filters: {}, limit: getProductLimit() });
       send({ type: 'product_options', products: nextProducts });
-      await streamWords(`Here are my top picks. Which one suits you?`, send);
+      await say(`Here are my top picks. Which one suits you?`);
     } else {
-      await streamWords(
-        `You're all set! Your cart is complete. Check your cart for the total and hit Checkout whenever you're ready.`,
-        send
+      await say(
+        `You're all set! Your cart is complete. Check your cart for the total and hit Checkout whenever you're ready.`
       );
     }
 
-    return;
+    return [{ role: 'assistant', content: said }];
   }
 
   // ── First message — customer describes their goal ────────────────────────────
@@ -81,9 +90,8 @@ export async function runMockAgentLoop(
   });
   send({ type: 'shopping_plan', plan });
 
-  await streamWords(
-    `I've put together a shopping plan based on your needs. Let's build your cart one step at a time — starting with a ${planCategories[0]}.`,
-    send
+  await say(
+    `I've put together a shopping plan based on your needs. Let's build your cart one step at a time — starting with a ${planCategories[0]}.`
   );
 
   const firstProducts = await executeSearchProducts({
@@ -92,6 +100,8 @@ export async function runMockAgentLoop(
     limit: getProductLimit(),
   });
   send({ type: 'product_options', products: firstProducts });
-  await streamWords(`Here are my top picks. Which one would you like?`, send);
+  await say(`Here are my top picks. Which one would you like?`);
+
+  return [{ role: 'assistant', content: said }];
 }
 

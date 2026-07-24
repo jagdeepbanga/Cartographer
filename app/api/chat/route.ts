@@ -14,7 +14,5 @@ export async function POST(req: Request) {
     return new Response('Missing messages or sessionId', { status: 400 });
   }
 
-  return createSSEStream(async (send) => {
-    await runAgentLoop(messages, sessionId, send);
-  });
+  return createSSEStream((send) => runAgentLoop(messages, sessionId, send));
 }
