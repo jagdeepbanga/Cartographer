@@ -55,9 +55,8 @@ export async function runMockAgentLoop(
       send({ type: 'product_options', products: nextProducts });
       await streamWords(`Here are my top picks. Which one suits you?`, send);
     } else {
-      const total = await getCartTotal(sessionId);
       await streamWords(
-        `You're all set! Your cart is complete. Total: $${total.toFixed(2)} AUD. Ready to checkout whenever you are.`,
+        `You're all set! Your cart is complete. Check your cart for the total and hit Checkout whenever you're ready.`,
         send
       );
     }
@@ -96,12 +95,3 @@ export async function runMockAgentLoop(
   await streamWords(`Here are my top picks. Which one would you like?`, send);
 }
 
-async function getCartTotal(sessionId: string): Promise<number> {
-  const result = await db.query<{ total: string }>(
-    `SELECT COALESCE(SUM(p.price * ci.quantity), 0) AS total
-     FROM cart_items ci JOIN products p ON p.id = ci.product_id
-     WHERE ci.session_id = $1`,
-    [sessionId]
-  );
-  return parseFloat(result.rows[0]?.total ?? '0');
-}

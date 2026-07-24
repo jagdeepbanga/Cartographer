@@ -14,7 +14,7 @@ function getModel() {
     case 'openai':
       return openai('gpt-4o');
     case 'google':
-      return google('gemini-2.5-flash');
+      return google('gemini-3.5-flash');
     case 'anthropic':
     default:
       return anthropic('claude-sonnet-4-6');

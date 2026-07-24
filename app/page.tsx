@@ -25,8 +25,13 @@ export default function Home() {
 
   const handleCartUpdate = useCallback((item: CartItem) => {
     setCartItems((prev) => [...prev, item]);
-    setCartOpen(true); // auto-open cart on mobile when item added
+    setCartOpen(true);
   }, []);
+
+  const handleCartRemove = useCallback(async (itemId: string) => {
+    await fetch(`/api/cart?sessionId=${sessionId}&itemId=${itemId}`, { method: 'DELETE' });
+    setCartItems((prev) => prev.filter((i) => i.id !== itemId));
+  }, [sessionId]);
 
   if (!sessionId) return null;
 
@@ -53,7 +58,7 @@ export default function Home() {
 
       {/* Desktop: persistent sidebar */}
       <div className="hidden md:block">
-        <CartPanel items={cartItems} />
+        <CartPanel items={cartItems} onRemove={handleCartRemove} />
       </div>
 
       {/* Mobile: slide-in drawer */}
@@ -66,7 +71,7 @@ export default function Home() {
           />
           {/* Drawer */}
           <div className="w-80 max-w-[90vw] h-full bg-white shadow-xl">
-            <CartPanel items={cartItems} onClose={() => setCartOpen(false)} />
+            <CartPanel items={cartItems} onRemove={handleCartRemove} onClose={() => setCartOpen(false)} />
           </div>
         </div>
       )}

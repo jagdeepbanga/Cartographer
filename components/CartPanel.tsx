@@ -5,10 +5,11 @@ import type { CartItem } from '@/types';
 
 type Props = {
   items: CartItem[];
+  onRemove?: (itemId: string) => void;
   onClose?: () => void;
 };
 
-export default function CartPanel({ items, onClose }: Props) {
+export default function CartPanel({ items, onRemove, onClose }: Props) {
   const total = items.reduce((sum, item) => {
     const price = item.product ? Number(item.product.price) : 0;
     return sum + price * item.quantity;
@@ -52,9 +53,19 @@ export default function CartPanel({ items, onClose }: Props) {
               </p>
               <p className="text-xs text-gray-400 mt-0.5">{item.product?.brand}</p>
             </div>
-            <span className="text-xs font-semibold text-gray-900 whitespace-nowrap">
-              ${item.product ? Number(item.product.price).toFixed(2) : '—'}
-            </span>
+            <div className="flex flex-col items-end gap-1 shrink-0">
+              <span className="text-xs font-semibold text-gray-900">
+                ${item.product ? Number(item.product.price).toFixed(2) : '—'}
+              </span>
+              {onRemove && (
+                <button
+                  onClick={() => onRemove(item.id)}
+                  className="text-xs text-red-400 hover:text-red-600 transition-colors"
+                >
+                  Remove
+                </button>
+              )}
+            </div>
           </div>
         ))}
       </div>
