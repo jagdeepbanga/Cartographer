@@ -16,16 +16,18 @@ async function seed() {
   let inserted = 0;
   for (const product of beautyProducts) {
     const result = await db.query(
-      `INSERT INTO products (name, brand, category, price, description, attributes)
-       VALUES ($1, $2, $3, $4, $5, $6)
-       ON CONFLICT DO NOTHING
+      `INSERT INTO products (sku, name, brand, category, price, description, image_url, attributes)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+       ON CONFLICT (sku) DO NOTHING
        RETURNING id`,
       [
+        product.sku,
         product.name,
         product.brand,
         product.category,
         product.price,
         product.description,
+        product.image_url,
         JSON.stringify(product.attributes),
       ]
     );

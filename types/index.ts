@@ -16,6 +16,7 @@ export type DomainConfig = {
 
 export type Product = {
   id: string;
+  sku: string;
   name: string;
   brand: string | null;
   category: string;

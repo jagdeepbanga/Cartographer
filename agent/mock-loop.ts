@@ -20,9 +20,18 @@ function textOf(content: ChatMessage['content']): string {
 
 async function findProductByName(name: string): Promise<Product | null> {
   const result = await db.query<Product>(
-    `SELECT id, name, brand, category, price, description, image_url, attributes, in_stock
+    `SELECT id, sku, name, brand, category, price, description, image_url, attributes, in_stock
      FROM products WHERE name = $1 LIMIT 1`,
     [name]
+  );
+  return result.rows[0] ?? null;
+}
+
+async function findProductById(id: string): Promise<Product | null> {
+  const result = await db.query<Product>(
+    `SELECT id, sku, name, brand, category, price, description, image_url, attributes, in_stock
+     FROM products WHERE id = $1 LIMIT 1`,
+    [id]
   );
   return result.rows[0] ?? null;
 }
@@ -48,8 +57,16 @@ export async function runMockAgentLoop(
 
   // ── Customer is choosing a product ──────────────────────────────────────────
   if (lastMessage.startsWith("I'd like the ")) {
-    const productName = lastMessage.replace("I'd like the ", '').trim();
-    const product = await findProductByName(productName);
+    // The UI sends: "I'd like the {name} (product_id: {id})". Prefer the explicit
+    // id; fall back to an exact name match for manually-typed messages.
+    const idMatch = lastMessage.match(/\(product_id:\s*([^)]+)\)/);
+    const productName = lastMessage
+      .replace("I'd like the ", '')
+      .replace(/\s*\(product_id:[^)]*\)\s*$/, '')
+      .trim();
+    const product = idMatch
+      ? await findProductById(idMatch[1].trim())
+      : await findProductByName(productName);
 
     if (product) {
       const cartItem = await executeAddToCart({ product_id: product.id, session_id: sessionId, quantity: 1 });
