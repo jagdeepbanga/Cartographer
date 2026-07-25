@@ -160,11 +160,24 @@ docker compose up -d db
 #    never runs on a normal `up`). Re-run any time to re-seed.
 docker compose --profile seed run --rm seed
 
-# 4. Start the app. MOCK_LLM=true needs no API key for a first smoke test.
-#    Reads other env (provider keys, DOMAIN, …) from .env.local.
-MOCK_LLM=true docker compose up app
+# 4. Start the app (reads config — provider keys, DOMAIN, MOCK_LLM, … — from .env.local)
+docker compose up app
 # → http://localhost:3000
 ```
+
+The app's runtime config comes from **`.env.local`** (loaded via `env_file`), the
+same file the non-Docker workflow uses.
+
+- **No API key / first smoke test:** set `MOCK_LLM=true` in `.env.local`, then
+  `docker compose up app`. The agent runs a scripted demo loop with no LLM calls.
+  For a one-off run without editing the file, inject it directly (a bare
+  `MOCK_LLM=... docker compose up` does **not** reach the container — that only
+  substitutes `${...}` inside the compose file):
+  ```bash
+  docker compose run --rm --service-ports -e MOCK_LLM=true app
+  ```
+- **Live provider:** set `LLM_PROVIDER` + the matching key in `.env.local`
+  (`MOCK_LLM=false`), then `docker compose up app`.
 
 Notes:
 - **Secrets** (`ANTHROPIC_API_KEY` / `OPENAI_API_KEY` /
@@ -172,9 +185,8 @@ Notes:
   are never baked into the image. Compose overrides `DATABASE_URL` to point at the
   `db` service on the internal network.
 - **Port already in use?** If `pnpm dev` is running, start the container on a
-  different host port: `APP_PORT=3001 docker compose up app`.
-- **Live provider:** drop `MOCK_LLM`, ensure `LLM_PROVIDER` + the matching key are
-  set in `.env.local`, and re-run step 4.
+  different host port: `APP_PORT=3001 docker compose up app` (this one *is* a
+  compose `${APP_PORT}` substitution, so the shell var works here).
 
 ---
 
