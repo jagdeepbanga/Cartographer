@@ -141,6 +141,55 @@ The agent will:
 
 ---
 
+## Run with Docker
+
+A production-like, fully containerized stack (Postgres + the app running Next.js
+[standalone output](https://nextjs.org/docs/app/api-reference/config/next-config-js/output))
+lives in `Dockerfile` + `docker-compose.yml`. The app image is
+environment-agnostic — Postgres and all secrets are injected as env vars, so the
+same image is what will run on AWS later.
+
+```bash
+# 1. Build the app image
+docker compose build app
+
+# 2. Start Postgres (named volume + healthcheck; published on host port 5433)
+docker compose up -d db
+
+# 3. One-off: apply schema + seed products (behind the `seed` profile, so it
+#    never runs on a normal `up`). Re-run any time to re-seed.
+docker compose --profile seed run --rm seed
+
+# 4. Start the app (reads config — provider keys, DOMAIN, MOCK_LLM, … — from .env.local)
+docker compose up app
+# → http://localhost:3000
+```
+
+The app's runtime config comes from **`.env.local`** (loaded via `env_file`), the
+same file the non-Docker workflow uses.
+
+- **No API key / first smoke test:** set `MOCK_LLM=true` in `.env.local`, then
+  `docker compose up app`. The agent runs a scripted demo loop with no LLM calls.
+  For a one-off run without editing the file, inject it directly (a bare
+  `MOCK_LLM=... docker compose up` does **not** reach the container — that only
+  substitutes `${...}` inside the compose file):
+  ```bash
+  docker compose run --rm --service-ports -e MOCK_LLM=true app
+  ```
+- **Live provider:** set `LLM_PROVIDER` + the matching key in `.env.local`
+  (`MOCK_LLM=false`), then `docker compose up app`.
+
+Notes:
+- **Secrets** (`ANTHROPIC_API_KEY` / `OPENAI_API_KEY` /
+  `GOOGLE_GENERATIVE_AI_API_KEY`, etc.) come from `.env.local` via `env_file` and
+  are never baked into the image. Compose overrides `DATABASE_URL` to point at the
+  `db` service on the internal network.
+- **Port already in use?** If `pnpm dev` is running, start the container on a
+  different host port: `APP_PORT=3001 docker compose up app` (this one *is* a
+  compose `${APP_PORT}` substitution, so the shell var works here).
+
+---
+
 ## Switching LLM providers
 
 Change `LLM_PROVIDER` in `.env.local` and restart the server:

@@ -132,7 +132,7 @@ export default function ProductImage({ category, brand, size = 'lg' }: Props) {
 
   return (
     <div
-      className={`w-full bg-gradient-to-br ${style.bg} flex items-center justify-center relative overflow-hidden`}
+      className={`w-full bg-linear-to-br ${style.bg} flex items-center justify-center relative overflow-hidden`}
       style={{ height: h }}
     >
       <svg

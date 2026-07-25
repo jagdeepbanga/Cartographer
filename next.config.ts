@@ -1,6 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Emit a self-contained .next/standalone build (minimal server.js + only the
+  // traced node_modules) for a small production Docker image.
+  output: 'standalone',
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: 'picsum.photos' },
