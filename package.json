@@ -7,8 +7,11 @@
     "build": "next build",
     "start": "next start",
     "db:seed": "tsx --env-file=.env.local db/seed/run.ts",
-    "db:reset": "tsx --env-file=.env.local db/seed/reset.ts"
+    "db:reset": "tsx --env-file=.env.local db/seed/reset.ts",
+    "db:seed:docker": "tsx db/seed/run.ts",
+    "db:reset:docker": "tsx db/seed/reset.ts"
   },
+  "packageManager": "pnpm@11.17.0",
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.81",
     "@ai-sdk/google": "^3.0.80",
