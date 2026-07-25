@@ -26,7 +26,7 @@ export async function executeSearchProducts(input: SearchProductsInput): Promise
 
   const where = conditions.join(' AND ');
   const query = `
-    SELECT id, name, brand, category, price, description, image_url, attributes, in_stock
+    SELECT id, sku, name, brand, category, price, description, image_url, attributes, in_stock
     FROM products
     WHERE ${where}
     ORDER BY price ASC

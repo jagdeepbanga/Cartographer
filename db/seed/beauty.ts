@@ -3,9 +3,13 @@ function img(seed: string) {
   return `https://picsum.photos/seed/${encodeURIComponent(seed)}/400/400`;
 }
 
+// Each product has an explicit, unique `sku` (format: {CATEGORY}-{BRAND}-{NN}).
+// The DB enforces a UNIQUE index on `sku`, so re-seeding is idempotent via
+// ON CONFLICT (sku).
 export const beautyProducts = [
   // Cleansers
   {
+    sku: 'CLN-CRV-01',
     name: 'CeraVe Hydrating Facial Cleanser',
     brand: 'CeraVe',
     category: 'cleanser',
@@ -15,6 +19,7 @@ export const beautyProducts = [
     attributes: { skin_type: 'dry', fragrance_free: true, cruelty_free: false },
   },
   {
+    sku: 'CLN-LRP-02',
     name: 'La Roche-Posay Toleriane Hydrating Gentle Cleanser',
     brand: 'La Roche-Posay',
     category: 'cleanser',
@@ -24,6 +29,7 @@ export const beautyProducts = [
     attributes: { skin_type: 'sensitive', fragrance_free: true, cruelty_free: false },
   },
   {
+    sku: 'CLN-SMP-03',
     name: 'Simple Kind to Skin Moisturising Facial Wash',
     brand: 'Simple',
     category: 'cleanser',
@@ -33,6 +39,7 @@ export const beautyProducts = [
     attributes: { skin_type: 'sensitive', fragrance_free: true, cruelty_free: true },
   },
   {
+    sku: 'CLN-NTG-04',
     name: 'Neutrogena Oil-Free Acne Wash',
     brand: 'Neutrogena',
     category: 'cleanser',
@@ -42,6 +49,7 @@ export const beautyProducts = [
     attributes: { skin_type: 'oily', fragrance_free: false, cruelty_free: false },
   },
   {
+    sku: 'CLN-CTP-05',
     name: 'Cetaphil Gentle Skin Cleanser',
     brand: 'Cetaphil',
     category: 'cleanser',
@@ -51,6 +59,7 @@ export const beautyProducts = [
     attributes: { skin_type: 'all', fragrance_free: true, cruelty_free: false },
   },
   {
+    sku: 'CLN-TOD-06',
     name: 'The Ordinary Squalane Cleanser',
     brand: 'The Ordinary',
     category: 'cleanser',
@@ -60,6 +69,7 @@ export const beautyProducts = [
     attributes: { skin_type: 'dry', fragrance_free: true, cruelty_free: true },
   },
   {
+    sku: 'CLN-PCH-07',
     name: "Paula's Choice RESIST Perfectly Balanced Foaming Cleanser",
     brand: "Paula's Choice",
     category: 'cleanser',
@@ -69,6 +79,7 @@ export const beautyProducts = [
     attributes: { skin_type: 'oily', fragrance_free: true, cruelty_free: true },
   },
   {
+    sku: 'CLN-BDM-08',
     name: 'Bioderma Sensibio H2O Micellar Water',
     brand: 'Bioderma',
     category: 'cleanser',
@@ -80,6 +91,7 @@ export const beautyProducts = [
 
   // Moisturisers
   {
+    sku: 'MST-CRV-01',
     name: 'CeraVe Moisturising Cream',
     brand: 'CeraVe',
     category: 'moisturiser',
@@ -89,6 +101,7 @@ export const beautyProducts = [
     attributes: { skin_type: 'dry', fragrance_free: true, cruelty_free: false },
   },
   {
+    sku: 'MST-NTG-02',
     name: 'Neutrogena Hydro Boost Water Gel',
     brand: 'Neutrogena',
     category: 'moisturiser',
@@ -98,6 +111,7 @@ export const beautyProducts = [
     attributes: { skin_type: 'oily', fragrance_free: false, cruelty_free: false },
   },
   {
+    sku: 'MST-LRP-03',
     name: 'La Roche-Posay Toleriane Double Repair Face Moisturiser',
     brand: 'La Roche-Posay',
     category: 'moisturiser',
@@ -107,6 +121,7 @@ export const beautyProducts = [
     attributes: { skin_type: 'sensitive', fragrance_free: true, cruelty_free: false },
   },
   {
+    sku: 'MST-AVN-04',
     name: 'Aveeno Calm + Restore Oat Gel Moisturiser',
     brand: 'Aveeno',
     category: 'moisturiser',
@@ -116,6 +131,7 @@ export const beautyProducts = [
     attributes: { skin_type: 'sensitive', fragrance_free: true, cruelty_free: false },
   },
   {
+    sku: 'MST-TOD-05',
     name: 'The Ordinary Natural Moisturising Factors + HA',
     brand: 'The Ordinary',
     category: 'moisturiser',
@@ -125,6 +141,7 @@ export const beautyProducts = [
     attributes: { skin_type: 'all', fragrance_free: true, cruelty_free: true },
   },
   {
+    sku: 'MST-KHL-06',
     name: "Kiehl's Ultra Facial Cream",
     brand: "Kiehl's",
     category: 'moisturiser',
@@ -134,6 +151,7 @@ export const beautyProducts = [
     attributes: { skin_type: 'all', fragrance_free: false, cruelty_free: false },
   },
   {
+    sku: 'MST-TAT-07',
     name: 'Tatcha The Water Cream',
     brand: 'Tatcha',
     category: 'moisturiser',
@@ -145,6 +163,7 @@ export const beautyProducts = [
 
   // SPF
   {
+    sku: 'SPF-LRP-01',
     name: 'La Roche-Posay Anthelios Ultra-Light Fluid SPF 50+',
     brand: 'La Roche-Posay',
     category: 'spf',
@@ -154,6 +173,7 @@ export const beautyProducts = [
     attributes: { skin_type: 'sensitive', spf_rating: 50, fragrance_free: false, cruelty_free: false },
   },
   {
+    sku: 'SPF-ALT-02',
     name: 'Altruist Dermatologist Sunscreen SPF 50',
     brand: 'Altruist',
     category: 'spf',
@@ -163,6 +183,7 @@ export const beautyProducts = [
     attributes: { skin_type: 'all', spf_rating: 50, fragrance_free: false, cruelty_free: true },
   },
   {
+    sku: 'SPF-ELT-03',
     name: 'EltaMD UV Clear Broad-Spectrum SPF 46',
     brand: 'EltaMD',
     category: 'spf',
@@ -172,6 +193,7 @@ export const beautyProducts = [
     attributes: { skin_type: 'oily', spf_rating: 46, fragrance_free: true, cruelty_free: true },
   },
   {
+    sku: 'SPF-NTG-04',
     name: 'Neutrogena Ultra Sheer Dry-Touch SPF 50+',
     brand: 'Neutrogena',
     category: 'spf',
@@ -181,6 +203,7 @@ export const beautyProducts = [
     attributes: { skin_type: 'oily', spf_rating: 50, fragrance_free: false, cruelty_free: false },
   },
   {
+    sku: 'SPF-BDS-05',
     name: 'Bondi Sands Fragrance Free Daily Moisturiser SPF 50',
     brand: 'Bondi Sands',
     category: 'spf',
@@ -190,6 +213,7 @@ export const beautyProducts = [
     attributes: { skin_type: 'all', spf_rating: 50, fragrance_free: true, cruelty_free: true },
   },
   {
+    sku: 'SPF-ULV-06',
     name: 'Ultra Violette Queen Screen SPF 50+ Luminising Serum',
     brand: 'Ultra Violette',
     category: 'spf',
@@ -199,6 +223,7 @@ export const beautyProducts = [
     attributes: { skin_type: 'dry', spf_rating: 50, fragrance_free: false, cruelty_free: true },
   },
   {
+    sku: 'SPF-IVZ-07',
     name: 'Invisible Zinc Tinted Daywear SPF 30',
     brand: 'Invisible Zinc',
     category: 'spf',
@@ -210,6 +235,7 @@ export const beautyProducts = [
 
   // Serums
   {
+    sku: 'SRM-TOD-01',
     name: 'The Ordinary Hyaluronic Acid 2% + B5',
     brand: 'The Ordinary',
     category: 'serum',
@@ -219,6 +245,7 @@ export const beautyProducts = [
     attributes: { skin_type: 'all', fragrance_free: true, cruelty_free: true },
   },
   {
+    sku: 'SRM-TOD-02',
     name: 'The Ordinary Niacinamide 10% + Zinc 1%',
     brand: 'The Ordinary',
     category: 'serum',
@@ -228,6 +255,7 @@ export const beautyProducts = [
     attributes: { skin_type: 'oily', fragrance_free: true, cruelty_free: true },
   },
   {
+    sku: 'SRM-LRP-03',
     name: 'La Roche-Posay Pure Vitamin C10 Serum',
     brand: 'La Roche-Posay',
     category: 'serum',
@@ -237,6 +265,7 @@ export const beautyProducts = [
     attributes: { skin_type: 'sensitive', fragrance_free: true, cruelty_free: false },
   },
   {
+    sku: 'SRM-PCH-04',
     name: "Paula's Choice RESIST 10% Niacinamide Booster",
     brand: "Paula's Choice",
     category: 'serum',
@@ -246,6 +275,7 @@ export const beautyProducts = [
     attributes: { skin_type: 'combination', fragrance_free: true, cruelty_free: true },
   },
   {
+    sku: 'SRM-DRE-05',
     name: 'Drunk Elephant C-Firma Fresh Day Serum',
     brand: 'Drunk Elephant',
     category: 'serum',
@@ -255,6 +285,7 @@ export const beautyProducts = [
     attributes: { skin_type: 'all', fragrance_free: false, cruelty_free: true },
   },
   {
+    sku: 'SRM-ESL-06',
     name: 'Estée Lauder Advanced Night Repair Serum',
     brand: 'Estée Lauder',
     category: 'serum',
@@ -266,6 +297,7 @@ export const beautyProducts = [
 
   // Toners
   {
+    sku: 'TNR-PCH-01',
     name: "Paula's Choice Skin Perfecting 2% BHA Liquid Exfoliant",
     brand: "Paula's Choice",
     category: 'toner',
@@ -275,6 +307,7 @@ export const beautyProducts = [
     attributes: { skin_type: 'oily', fragrance_free: true, cruelty_free: true },
   },
   {
+    sku: 'TNR-THY-02',
     name: 'Thayers Witch Hazel Facial Toner',
     brand: 'Thayers',
     category: 'toner',
@@ -284,6 +317,7 @@ export const beautyProducts = [
     attributes: { skin_type: 'combination', fragrance_free: false, cruelty_free: true },
   },
   {
+    sku: 'TNR-PXI-03',
     name: 'Pixi Glow Tonic',
     brand: 'Pixi',
     category: 'toner',
@@ -293,6 +327,7 @@ export const beautyProducts = [
     attributes: { skin_type: 'combination', fragrance_free: false, cruelty_free: true },
   },
   {
+    sku: 'TNR-TOD-04',
     name: 'The Ordinary Glycolic Acid 7% Toning Solution',
     brand: 'The Ordinary',
     category: 'toner',
@@ -302,6 +337,7 @@ export const beautyProducts = [
     attributes: { skin_type: 'combination', fragrance_free: true, cruelty_free: true },
   },
   {
+    sku: 'TNR-LRP-05',
     name: 'La Roche-Posay Effaclar Clarifying Lotion',
     brand: 'La Roche-Posay',
     category: 'toner',
@@ -311,6 +347,7 @@ export const beautyProducts = [
     attributes: { skin_type: 'oily', fragrance_free: true, cruelty_free: false },
   },
   {
+    sku: 'TNR-KHL-06',
     name: "Kiehl's Calendula Herbal-Extract Toner",
     brand: "Kiehl's",
     category: 'toner',
@@ -322,6 +359,7 @@ export const beautyProducts = [
 
   // Eye creams
   {
+    sku: 'EYE-CRV-01',
     name: 'CeraVe Eye Repair Cream',
     brand: 'CeraVe',
     category: 'eye cream',
@@ -331,6 +369,7 @@ export const beautyProducts = [
     attributes: { skin_type: 'all', fragrance_free: true, cruelty_free: false },
   },
   {
+    sku: 'EYE-OLY-02',
     name: 'Olay Eyes Ultimate Eye Cream',
     brand: 'Olay',
     category: 'eye cream',
@@ -340,6 +379,7 @@ export const beautyProducts = [
     attributes: { skin_type: 'all', fragrance_free: false, cruelty_free: false },
   },
   {
+    sku: 'EYE-KHL-03',
     name: "Kiehl's Creamy Eye Treatment with Avocado",
     brand: "Kiehl's",
     category: 'eye cream',
@@ -349,6 +389,7 @@ export const beautyProducts = [
     attributes: { skin_type: 'dry', fragrance_free: false, cruelty_free: false },
   },
   {
+    sku: 'EYE-ROC-04',
     name: 'RoC Retinol Correxion Line Smoothing Eye Cream',
     brand: 'RoC',
     category: 'eye cream',
@@ -358,6 +399,7 @@ export const beautyProducts = [
     attributes: { skin_type: 'all', fragrance_free: false, cruelty_free: false },
   },
   {
+    sku: 'EYE-TIL-05',
     name: 'The Inkey List Caffeine Eye Cream',
     brand: 'The Inkey List',
     category: 'eye cream',

@@ -3,6 +3,7 @@ CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 CREATE TABLE IF NOT EXISTS products (
   id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name        TEXT         NOT NULL,
+  sku         TEXT,
   brand       TEXT,
   category    TEXT         NOT NULL,
   price       NUMERIC(10,2) NOT NULL,
@@ -13,8 +14,14 @@ CREATE TABLE IF NOT EXISTS products (
   created_at  TIMESTAMPTZ  NOT NULL DEFAULT NOW()
 );
 
+-- Ensure `sku` exists on pre-existing tables (CREATE TABLE above is skipped when
+-- the table already exists), then enforce uniqueness so re-seeding can dedupe on
+-- it via ON CONFLICT (sku).
+ALTER TABLE products ADD COLUMN IF NOT EXISTS sku TEXT;
+
 CREATE INDEX IF NOT EXISTS idx_products_category   ON products (category);
 CREATE INDEX IF NOT EXISTS idx_products_attributes ON products USING GIN (attributes);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_products_sku  ON products (sku);
 
 CREATE TABLE IF NOT EXISTS sessions (
   id         TEXT        PRIMARY KEY,
