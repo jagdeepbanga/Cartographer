@@ -4,6 +4,10 @@ A portfolio project demonstrating senior AI full-stack engineering. An AI agent 
 
 **Live demo flow:** Customer describes what they need → agent creates a shopping plan → searches the catalogue and presents 3 options per category → customer picks one → agent adds it to the cart → repeat until the cart is complete.
 
+## Demo
+
+![Cartographer demo](docs/demo.gif)
+
 ---
 
 ## What's been built (Phase 1)
