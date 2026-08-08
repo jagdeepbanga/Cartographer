@@ -1,0 +1,109 @@
+name: Deploy
+
+# Build the image and push it to ECR. App Runner has auto_deployments_enabled,
+# so the push itself triggers the rollout — this workflow never calls
+# StartDeployment on the happy path, it just waits and smoke-tests.
+#
+# Required GitHub repository variables (Settings → Secrets and variables →
+# Actions → Variables). None of these are secrets:
+#   AWS_DEPLOY_ROLE_ARN  — terraform output github_actions_role_arn
+#   AWS_REGION           — e.g. eu-west-2
+#   ECR_REPOSITORY       — e.g. cartographer
+#   APP_URL              — terraform output app_url (optional; enables the smoke test)
+
+on:
+  push:
+    branches: [master]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - 'Research/**'
+      - 'infra/**'
+  workflow_dispatch:
+
+concurrency:
+  # Never let two deploys race to overwrite the same tag.
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  id-token: write # required to request the OIDC token
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Log in to Amazon ECR
+        id: ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          target: runner
+          # App Runner is x86_64 only. Ubuntu runners are already amd64, so this
+          # is belt-and-braces — but it is the one line that stops an arm64
+          # image (e.g. from a local `docker build` on Apple Silicon) reaching
+          # production and failing with an exec-format error.
+          platforms: linux/amd64
+          push: true
+          tags: |
+            ${{ steps.ecr.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:latest
+            ${{ steps.ecr.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:sha-${{ github.sha }}
+          # `pnpm install` and `next build` dominate build time; cache them.
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Wait for App Runner to finish rolling out
+        run: |
+          set -euo pipefail
+          SERVICE_ARN=$(aws apprunner list-services \
+            --query "ServiceSummaryList[?ServiceName=='${{ vars.ECR_REPOSITORY }}'].ServiceArn | [0]" \
+            --output text)
+
+          if [ -z "$SERVICE_ARN" ] || [ "$SERVICE_ARN" = "None" ]; then
+            echo "No App Runner service found — image pushed, nothing to roll out."
+            exit 0
+          fi
+
+          echo "Waiting on $SERVICE_ARN"
+          for i in $(seq 1 60); do
+            STATUS=$(aws apprunner describe-service --service-arn "$SERVICE_ARN" \
+              --query 'Service.Status' --output text)
+            echo "  [$i/60] status=$STATUS"
+            case "$STATUS" in
+              RUNNING)             echo "Rollout complete."; exit 0 ;;
+              CREATE_FAILED|DELETE_FAILED)
+                                   echo "::error::App Runner reported $STATUS"; exit 1 ;;
+            esac
+            sleep 15
+          done
+          echo "::error::Timed out after 15 minutes waiting for RUNNING"
+          exit 1
+
+      - name: Smoke test
+        if: vars.APP_URL != ''
+        run: |
+          set -euo pipefail
+          for i in $(seq 1 10); do
+            CODE=$(curl -s -o /dev/null -w '%{http_code}' "${{ vars.APP_URL }}/api/health" || echo 000)
+            echo "  [$i/10] /api/health -> $CODE"
+            [ "$CODE" = "200" ] && { echo "Healthy."; exit 0; }
+            sleep 10
+          done
+          echo "::error::/api/health never returned 200"
+          exit 1

@@ -1,0 +1,73 @@
+name: Verify
+
+# There is no test suite yet, so the build and the typechecker are the only gate
+# before a change can reach production. Keep this job fast and required.
+
+on:
+  pull_request:
+  push:
+    branches-ignore: [master]
+
+concurrency:
+  group: verify-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm exec tsc --noEmit
+
+      - name: Build
+        run: pnpm build
+
+      # The CA bundle is excluded by the `*.pem` rule inherited from the Next
+      # template and re-included by an explicit negation. If that negation is
+      # ever dropped, everything below still passes and the app fails at runtime
+      # in production only — TLS is off locally. Fail loudly here instead.
+      - name: Assert the RDS CA bundle is tracked in git
+        run: |
+          git ls-files --error-unmatch certs/rds-global-bundle.pem > /dev/null \
+            || { echo "::error::certs/rds-global-bundle.pem is not tracked — check the .gitignore negation"; exit 1; }
+
+      - name: Assert Docker image builds
+        run: docker build --target runner -t cartographer:ci .
+
+  terraform:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: infra
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.15.8
+
+      - run: terraform fmt -check -recursive
+
+      # -backend=false: no state, no credentials, no AWS calls.
+      - run: terraform init -backend=false -input=false
+
+      - run: terraform validate
+
+      # Plans every supported variable combination against a mocked provider,
+      # which is what actually catches a mismatched count guard.
+      - run: terraform test
