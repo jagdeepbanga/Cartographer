@@ -30,7 +30,12 @@ export function createSSEStream(
   return new Response(stream, {
     headers: {
       'Content-Type': 'text/event-stream',
-      'Cache-Control': 'no-cache',
+      // `no-transform` stops intermediaries compressing/buffering the stream and
+      // `X-Accel-Buffering` opts out of nginx-style proxy buffering. Without
+      // these, a proxy can hold the whole response until the agent finishes —
+      // turning word-by-word streaming into one delayed block of text.
+      'Cache-Control': 'no-cache, no-transform',
+      'X-Accel-Buffering': 'no',
       Connection: 'keep-alive',
     },
   });

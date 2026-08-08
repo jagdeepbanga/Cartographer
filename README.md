@@ -22,6 +22,8 @@ A portfolio project demonstrating senior AI full-stack engineering. An AI agent 
 - **`POST /api/chat`** — SSE streaming endpoint. Receives the conversation history + session ID, runs the agent loop, and streams events back to the browser in real time.
 - **`GET /api/cart`** — Returns all cart items for a session, joined with product data.
 - **`DELETE /api/cart`** — Removes an item from the cart.
+- **`GET /api/health`** — Liveness probe for container platforms. Deliberately does not touch the database.
+- **`GET /api/ready`** — Readiness probe; returns 503 if Postgres is unreachable.
 
 ### Frontend (`app/`, `components/`)
 - **`ChatWindow`** — Conversational UI. Streams agent text word-by-word as it arrives. Handles three event types from the server: `text_delta` (streaming text), `shopping_plan` (plan card), `product_options` (3 product cards).
@@ -187,6 +189,18 @@ Notes:
 - **Port already in use?** If `pnpm dev` is running, start the container on a
   different host port: `APP_PORT=3001 docker compose up app` (this one *is* a
   compose `${APP_PORT}` substitution, so the shell var works here).
+- **Health endpoints:** `GET /api/health` is a liveness check (no DB call — a
+  database blip shouldn't get healthy containers killed) and `GET /api/ready`
+  confirms Postgres is actually reachable, returning 503 if not.
+- **Postgres TLS:** managed Postgres (RDS) refuses unencrypted connections, so
+  `db/client.ts` enables TLS automatically for non-local hosts and verifies
+  against the CA bundle in `certs/`. Compose sets `PGSSLMODE=disable` because the
+  local `postgres` image serves plaintext only.
+- **Building for the cloud from Apple Silicon:** a plain `docker build` on an
+  M-series Mac produces an `arm64` image, which fails to start on an x86_64
+  runtime with an exec-format error. Build with
+  `docker buildx build --platform linux/amd64 --target runner .` when pushing to
+  a registry. CI runners are already `amd64`, so this only affects manual pushes.
 
 ---
 
