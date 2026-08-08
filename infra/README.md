@@ -18,6 +18,11 @@ GitHub Actions ──OIDC──▶ AWS   (no long-lived access keys)
 Secrets Manager ──(instance role)─────────────┘
 ```
 
+> **First time deploying this?** Follow [WALKTHROUGH.md](./WALKTHROUGH.md)
+> instead — same steps, but with cost guardrails, what-you-should-see checks,
+> log-reading, deliberate-breakage experiments, and teardown. This file is the
+> terse reference for when you already know the shape of it.
+
 ## Prerequisites
 
 - Terraform >= 1.9, AWS CLI v2, credentials with admin-ish rights for the first apply
@@ -159,19 +164,34 @@ becomes private — no application changes.
 
 ## Cost
 
-Roughly, `eu-west-2`, idle:
+Roughly, `eu-west-2`, sitting idle. Estimates — check the AWS pricing pages for
+your region before relying on them.
 
 | | Est./mo |
 |---|---|
-| App Runner, 1 vCPU / 2 GB, `min_size = 1` | ~$25–30 |
-| RDS `db.t4g.micro` + 20 GB gp3 | ~$13–16 |
-| ECR, Secrets Manager, transfer | ~$2–3 |
-| **Total** | **~$40–50** |
+| App Runner, 1 vCPU / 2 GB, `min_size = 1` | ~$10 idle |
+| RDS `db.t4g.micro` + 20 GB gp3 | ~$14 (free for 12 months on a new account) |
+| Secrets Manager, 2 secrets | ~$0.80 |
+| ECR + data transfer | ~$1 |
+| **Total** | **~$26**, or **~$12** with the RDS free tier |
 | Phase 2 NAT Gateway | +~$32 |
 
-App Runner cannot scale to zero, so `min_size = 1` is the floor and this bill
-arrives whether or not anyone visits. If the project is going to sit idle for
-months, Cloud Run's scale-to-zero would run the same container for ~$1–3/mo.
+The App Runner number is worth understanding rather than memorising. It bills
+provisioned **memory** continuously (~$0.007/GB-hour, so 2 GB ≈ $10/month) but
+**vCPU only while a request is actually being processed**. An idle service is
+therefore much cheaper than the instance size suggests — but it is never free,
+because `min_size` cannot be 0.
+
+To cut the floor roughly in half while learning, drop to 0.5 vCPU / 1 GB:
+
+```hcl
+app_runner_cpu    = "512"
+app_runner_memory = "1024"
+```
+
+If the project will sit idle for months, Cloud Run's scale-to-zero runs the same
+container for ~$1–3/month. And `terraform destroy` between sessions takes the
+whole bill to roughly zero — see the walkthrough.
 
 ## Teardown
 

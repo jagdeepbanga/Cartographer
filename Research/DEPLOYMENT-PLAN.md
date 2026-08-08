@@ -345,15 +345,21 @@ the wrong default.
 
 | Item | Est. |
 |---|---|
-| App Runner, 1 vCPU / 2 GB, `min_size = 1` | ~$25–30 |
-| RDS `db.t4g.micro` + 20 GB gp3 | ~$13–16 |
-| ECR storage, Secrets Manager (2 secrets), data transfer | ~$2–3 |
-| **Phase 1 total** | **~$40–50** |
+| App Runner, 1 vCPU / 2 GB, `min_size = 1` | ~$10 idle |
+| RDS `db.t4g.micro` + 20 GB gp3 | ~$14 (free for 12 months on a new account) |
+| Secrets Manager (2 secrets) | ~$0.80 |
+| ECR storage + data transfer | ~$1 |
+| **Phase 1 total** | **~$26**, or **~$12** on the RDS free tier |
 | Phase 2 adds NAT Gateway | **+~$32** |
 
-Meaningful for a demo that may sit idle. App Runner cannot scale to zero. If cost
-matters more than the AWS story, Cloud Run scale-to-zero would be ~$1–3/mo for
-the same container — worth revisiting if this runs for months rather than weeks.
+App Runner bills provisioned **memory** continuously (~$0.007/GB-hour) but
+**vCPU only while a request is being processed**, so an idle service costs far
+less than the instance size implies. It is still never free — `min_size` cannot
+be 0. Dropping to 0.5 vCPU / 1 GB roughly halves the floor.
+
+If cost matters more than the AWS story, Cloud Run scale-to-zero would be
+~$1–3/mo for the same container — worth revisiting if this runs for months
+rather than weeks.
 
 ---
 
