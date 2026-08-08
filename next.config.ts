@@ -12,6 +12,9 @@ const nextConfig: NextConfig = {
   // Ensure all prompt files are bundled in production (Vercel, etc.)
   outputFileTracingIncludes: {
     '/api/chat': ['./agent/prompts/*.md'],
+    // The RDS CA bundle is read at runtime by db/client.ts. The Dockerfile also
+    // copies it explicitly; this covers trace-based deploys (Vercel, etc.).
+    '/api/**': ['./certs/*.pem'],
   },
 };
 

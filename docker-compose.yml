@@ -43,6 +43,10 @@ services:
       # Override the host-oriented DATABASE_URL from .env.local: inside the
       # compose network Postgres is reachable at the service name `db`.
       DATABASE_URL: postgresql://postgres:postgres@db:5432/cartographer
+      # The local postgres image serves plaintext only. Managed Postgres (RDS)
+      # forces TLS, and db/client.ts turns it on automatically for non-local
+      # hosts — this is the explicit off-switch for the compose stack.
+      PGSSLMODE: disable
 
   # One-off schema + seed. Uses the `builder` stage (has devDeps incl. tsx and
   # the db/ source). Never runs on a normal `up` — it's behind the `seed` profile.
@@ -56,6 +60,7 @@ services:
         condition: service_healthy
     environment:
       DATABASE_URL: postgresql://postgres:postgres@db:5432/cartographer
+      PGSSLMODE: disable
     command: ["pnpm", "db:seed:docker"]
 
 volumes:

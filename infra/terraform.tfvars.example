@@ -1,0 +1,33 @@
+# Copy to terraform.tfvars and fill in. terraform.tfvars is git-ignored.
+#
+#   cp terraform.tfvars.example terraform.tfvars
+
+# REQUIRED. Your public IP, for seeding the database and psql access.
+#   curl -s https://checkip.amazonaws.com
+admin_cidr = "203.0.113.4/32"
+
+aws_region = "eu-west-2"
+
+# Rollout gate: App Runner cannot start against an empty ECR repository.
+# Leave false for the first apply, push an image, then set true and re-apply.
+create_app_runner_service = false
+
+# Set to false if your AWS account already has the GitHub OIDC provider
+# registered (only one per URL is allowed per account).
+create_github_oidc_provider = true
+
+github_repository    = "jagdeepbanga/Cartographer"
+github_deploy_branch = "master"
+
+# Application config
+llm_provider  = "google"
+domain        = "beauty"
+product_limit = 4
+
+# true runs the scripted demo loop with no LLM calls — useful for the first
+# deploy, before the API key secret is populated.
+mock_llm = false
+
+# Phase 2: private RDS via a VPC connector. Requires a NAT Gateway (~$32/mo)
+# or the agent's outbound LLM calls will hang. Read infra/README.md first.
+app_runner_vpc_egress = false

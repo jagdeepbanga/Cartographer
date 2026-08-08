@@ -23,6 +23,9 @@
 # misc
 .DS_Store
 *.pem
+# Exception: Amazon's RDS root CA bundle. These are public certificates, not a
+# secret, and the runtime image needs them to verify TLS to managed Postgres.
+!certs/rds-global-bundle.pem
 
 # editors
 .vscode/
