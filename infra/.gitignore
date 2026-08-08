@@ -1,0 +1,18 @@
+# Terraform state contains the generated database password in PLAINTEXT.
+# Never commit it.
+*.tfstate
+*.tfstate.*
+.terraform/
+crash.log
+crash.*.log
+
+# .terraform.lock.hcl is deliberately NOT ignored — it pins provider versions
+# and checksums so CI and every machine resolve the same providers.
+
+# Real variable values (admin_cidr, overrides) — keep the .example committed.
+*.tfvars
+*.tfvars.json
+!*.tfvars.example
+
+# Saved plans can also contain sensitive values.
+*.tfplan
