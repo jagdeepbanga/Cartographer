@@ -87,8 +87,9 @@ Then edit `.env.local` and replace the placeholder values:
 ANTHROPIC_API_KEY=sk-ant-...
 OPENAI_API_KEY=sk-...
 GOOGLE_GENERATIVE_AI_API_KEY=...
+OPENROUTER_API_KEY=sk-or-...
 
-# Set the active provider (anthropic | openai | google)
+# Set the active provider (anthropic | openai | google | openrouter)
 LLM_PROVIDER=google
 
 # Postgres — see step 3 (default works with the Docker command below)
@@ -185,12 +186,16 @@ same file the non-Docker workflow uses.
 
 Notes:
 - **Secrets** (`ANTHROPIC_API_KEY` / `OPENAI_API_KEY` /
-  `GOOGLE_GENERATIVE_AI_API_KEY`, etc.) come from `.env.local` via `env_file` and
+  `GOOGLE_GENERATIVE_AI_API_KEY` / `OPENROUTER_API_KEY`, etc.) come from `.env.local` via `env_file` and
   are never baked into the image. Compose overrides `DATABASE_URL` to point at the
   `db` service on the internal network.
 - **Port already in use?** If `pnpm dev` is running, start the container on a
   different host port: `APP_PORT=3001 docker compose up app` (this one *is* a
   compose `${APP_PORT}` substitution, so the shell var works here).
+- **Postgres port already in use?** Same trick for the DB — if another project
+  holds 5433, publish it elsewhere with `DB_PORT=5434 docker compose up -d db`
+  and update `DATABASE_URL` in `.env.local` to match. Only the *host* mapping
+  changes; the app still reaches Postgres at `db:5432` inside the network.
 
 ---
 
@@ -202,7 +207,24 @@ Change `LLM_PROVIDER` in `.env.local` and restart the server:
 LLM_PROVIDER=anthropic   # Claude Sonnet 4.6
 LLM_PROVIDER=openai      # GPT-4o
 LLM_PROVIDER=google      # Gemini 2.5 Flash
+LLM_PROVIDER=openrouter  # any model on OpenRouter — see below
 ```
+
+With `openrouter` you get every model OpenRouter lists behind a single key. It
+defaults to `minimax/minimax-m2.7:free` — a free, tool-capable model — so you can run the
+agent for real without spending anything. Override with `OPENROUTER_MODEL`:
+
+```env
+LLM_PROVIDER=openrouter
+OPENROUTER_API_KEY=sk-or-...
+OPENROUTER_MODEL=anthropic/claude-sonnet-4.5   # any slug from openrouter.ai/models
+```
+
+Model slugs come from [openrouter.ai/models](https://openrouter.ai/models). The
+agent needs tool calling, so pick a model whose listing supports it — free models
+that do include `minimax/minimax-m2.7:free`, `nvidia/nemotron-3.5-lightning:free`
+and `z-ai/glm-5.2:free`. Free tiers share an upstream pool and return HTTP 429
+when it is busy — retry, try another free slug, or switch to a paid one.
 
 No code changes needed — the Vercel AI SDK normalises tool use and streaming across all providers.
 

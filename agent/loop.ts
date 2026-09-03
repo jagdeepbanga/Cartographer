@@ -2,6 +2,7 @@ import { streamText, stepCountIs } from 'ai';
 import { anthropic } from '@ai-sdk/anthropic';
 import { openai } from '@ai-sdk/openai';
 import { google } from '@ai-sdk/google';
+import { openrouter } from '@openrouter/ai-sdk-provider';
 import { loadDomainConfig } from '@/domain.config';
 import { buildSystemPrompt } from './system-prompt';
 import { buildTools } from './tool-registry';
@@ -9,12 +10,16 @@ import { runMockAgentLoop } from './mock-loop';
 import type { SSEEvent, ChatMessage } from '@/types';
 
 function getModel() {
-  const provider = process.env.LLM_PROVIDER ?? 'anthropic';
+  const provider = process.env.LLM_PROVIDER ?? 'openrouter';
   switch (provider) {
     case 'openai':
       return openai('gpt-4o');
     case 'google':
       return google('gemini-2.5-flash');
+    case 'openrouter':
+      // Defaults to a free, tool-capable model so no credit is needed to try it.
+      // Any model slug from https://openrouter.ai/models works here.
+      return openrouter(process.env.OPENROUTER_MODEL ?? 'minimax/minimax-m2.7:free');
     case 'anthropic':
     default:
       return anthropic('claude-sonnet-4-6');

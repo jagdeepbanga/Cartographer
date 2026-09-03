@@ -17,6 +17,7 @@
     "@ai-sdk/google": "^3.0.80",
     "@ai-sdk/openai": "^3.0.68",
     "@anthropic-ai/sdk": "^0.100.1",
+    "@openrouter/ai-sdk-provider": "^2.10.0",
     "ai": "^6.0.197",
     "next": "16.2.7",
     "pg": "^8.21.0",
