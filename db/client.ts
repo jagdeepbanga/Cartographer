@@ -9,10 +9,12 @@ const isLocal = /@(localhost|127\.0\.0\.1|db):/.test(connectionString ?? '');
 export const db = new Pool({
   connectionString,
   ssl: isLocal ? undefined : { rejectUnauthorized: false },
-  // On Vercel each serverless invocation gets its own container, so a large pool
-  // per instance just exhausts the database's connection limit. Keep it small and
-  // let idle connections drop quickly.
-  max: process.env.VERCEL ? 1 : 10,
+  // Fluid Compute reuses a function instance across concurrent requests, so a
+  // pool of 1 would serialise queries behind each other. Keep a few connections
+  // per instance — enough for concurrency, small enough that the instances Vercel
+  // does spin up don't exhaust the database's connection limit. Pair this with the
+  // provider's pooled connection string (Neon: the `-pooler` host).
+  max: process.env.VERCEL ? 5 : 10,
   idleTimeoutMillis: 10_000,
   connectionTimeoutMillis: 10_000,
 });

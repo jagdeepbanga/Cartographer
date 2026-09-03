@@ -64,7 +64,6 @@ Things that would start costing money, so you know what to avoid:
 - Dropping `:free` from `OPENROUTER_MODEL`. `minimax/minimax-m2.7` and
   `minimax/minimax-m2.7:free` are different products; the suffix is what makes it
   free.
-- Raising `maxDuration` in `app/api/chat/route.ts` above 60 — that requires Pro.
 - Vercel will *not* silently bill you on Hobby; it stops serving or throttles when
   a quota is hit rather than charging overage.
 
@@ -106,8 +105,10 @@ Every serverless invocation is its own container with its own connection pool, s
 a few concurrent requests can exhaust a free-tier connection cap fast. Two things
 already guard against that:
 
-- `db/client.ts` caps the pool at **1 connection per instance** when `VERCEL` is
-  set, and drops idle connections after 10s.
+- `db/client.ts` caps the pool at **5 connections per instance** when `VERCEL` is
+  set, and drops idle connections after 10s. (Fluid Compute reuses one instance
+  across concurrent requests, so a pool of 1 would serialise queries — this is not
+  the old one-request-per-container model.)
 - The pooled URL puts PgBouncer in front of the database.
 
 Use the pooled string for the deployed app. Use the direct string for seeding,
@@ -211,11 +212,12 @@ under $150."*
 
 ## Free-tier limits worth knowing before a demo
 
-- **Function duration.** Hobby allows 60s per invocation, which `/api/chat`
-  declares via `export const maxDuration = 60`. The agent loop caps at 20 steps;
-  a long multi-category plan on a slow free model can brush against 60s. If a
-  demo answer gets truncated, either use a faster model (`OPENROUTER_MODEL=…`,
-  or `LLM_PROVIDER=google` with `gemini-2.5-flash`) or set `MOCK_LLM=true`.
+- **Function duration.** The default is **300s on all plans, Hobby included**
+  (it was 60–90s historically — a lot of documentation and LLM advice is still
+  stale on this). `/api/chat` declares `export const maxDuration = 300` so the
+  ceiling is explicit. A measured demo run takes ~11s, so there is a wide margin;
+  the agent's own `stepCountIs(20)` cap will stop a runaway loop long before the
+  platform does.
 - **Streaming.** SSE works on Hobby; `lib/stream.ts` sends `X-Accel-Buffering: no`
   so tokens are not buffered by the edge.
 - **Cold starts.** The first request after idle takes a second or two. Load the
@@ -232,5 +234,5 @@ under $150."*
 | `no pg_hba.conf entry … no encryption` | TLS not negotiated | Make sure the host in `DATABASE_URL` isn't `localhost`; `db/client.ts` keys TLS off that. |
 | `too many connections` | Direct (unpooled) string in production | Use the pooled connection string for `DATABASE_URL` in Vercel. |
 | Chat streams nothing, 500 in logs | Missing/invalid provider key | Check Runtime Logs; or set `MOCK_LLM=true`. |
-| Answer cuts off mid-plan | 60s function ceiling | Faster model, or `MOCK_LLM=true`. |
+| Answer cuts off mid-plan | Model stopped early, or the 20-step agent cap | Check Runtime Logs; try a stronger model. Not the function timeout — that's 300s. |
 | Env var change had no effect | Vercel bakes env at build | **Redeploy** after editing variables. |

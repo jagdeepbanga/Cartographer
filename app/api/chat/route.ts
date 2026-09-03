@@ -3,9 +3,10 @@ import { runAgentLoop } from '@/agent/loop';
 import type { ChatMessage } from '@/types';
 
 export const runtime = 'nodejs';
-// The agent loop streams for as long as the model takes. 60s is the ceiling on
-// Vercel's Hobby plan; raise it on paid plans if long plans get cut off.
-export const maxDuration = 60;
+// The agent loop is multi-step and streams for as long as the model takes.
+// Vercel's default is 300s on all plans (including Hobby); state it explicitly so
+// the ceiling is visible here rather than inherited silently.
+export const maxDuration = 300;
 
 export async function POST(req: Request) {
   const { messages, sessionId } = (await req.json()) as {
