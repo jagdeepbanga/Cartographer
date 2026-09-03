@@ -2,9 +2,19 @@ import { Pool } from 'pg';
 
 const connectionString = process.env.DATABASE_URL;
 
+if (!connectionString) {
+  // Without this, `pg` silently falls back to localhost and every query fails
+  // with ECONNREFUSED 127.0.0.1:5432 — which reads like a networking problem
+  // rather than a missing/empty environment variable.
+  throw new Error(
+    'DATABASE_URL is not set. On Vercel, connect a Postgres database under ' +
+      'Storage, then redeploy — environment variables are applied at build time.'
+  );
+}
+
 // Managed Postgres (Neon, Supabase, RDS) requires TLS; a local/compose Postgres
 // does not offer it. Enable it for everything except localhost.
-const isLocal = /@(localhost|127\.0\.0\.1|db):/.test(connectionString ?? '');
+const isLocal = /@(localhost|127\.0\.0\.1|db):/.test(connectionString);
 
 export const db = new Pool({
   connectionString,
