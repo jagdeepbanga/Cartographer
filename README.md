@@ -281,8 +281,26 @@ To add a new domain, create `domain/your-domain.config.json` following the same 
 
 ---
 
+## Deploy to Vercel (free)
+
+Hobby plan + a free Neon Postgres — $0, ~10 minutes. Full walkthrough:
+**[docs/DEPLOY-VERCEL.md](docs/DEPLOY-VERCEL.md)**.
+
+```bash
+# 1. Import the repo at vercel.com → Add New… → Project
+# 2. Storage → Create Database → Neon (Postgres), Free plan  → sets DATABASE_URL
+# 3. Seed the remote DB from your laptop
+DATABASE_URL="postgresql://…" pnpm db:seed:remote
+# 4. git push  → deploys
+```
+
+Set `MOCK_LLM=true` in the Vercel env vars for a demo that needs **no API key**
+at all — scripted agent loop, real products, real cart, real streaming.
+
+---
+
 ## Roadmap
 
 - **Phase 2** — Real product data + pgvector semantic search
 - **Phase 3** — Merchandiser agent (SEO title generation, duplicate detection)
-- **Phase 4** — Evals, multi-domain UI switcher, Vercel deployment
+- **Phase 4** — Evals, multi-domain UI switcher

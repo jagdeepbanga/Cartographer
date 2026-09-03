@@ -32,6 +32,9 @@ export function createSSEStream(
       'Content-Type': 'text/event-stream',
       'Cache-Control': 'no-cache',
       Connection: 'keep-alive',
+      // Disable proxy buffering so tokens reach the browser as they are produced
+      // (Vercel and nginx both honour this).
+      'X-Accel-Buffering': 'no',
     },
   });
 }

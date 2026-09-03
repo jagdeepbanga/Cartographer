@@ -19,7 +19,10 @@ FROM base AS builder
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 # NODE_ENV is set at build time so Next produces an optimized production build.
-ENV NEXT_TELEMETRY_DISABLED=1
+# DOCKER_BUILD=1 switches next.config.ts to `output: 'standalone'` (Vercel builds
+# without it, since it produces its own serverless output).
+ENV NEXT_TELEMETRY_DISABLED=1 \
+    DOCKER_BUILD=1
 RUN pnpm build
 
 # ---- Runner: minimal production image, non-root ----------------------------
