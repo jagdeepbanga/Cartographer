@@ -15,9 +15,10 @@ services:
       POSTGRES_DB: cartographer
     ports:
       # Host access on 5433 (maps to container 5432) to avoid colliding with a
-      # Postgres already running on the host's 5432. The app reaches the DB over
-      # the internal compose network as `db:5432` regardless of this mapping.
-      - "5433:5432"
+      # Postgres already running on the host's 5432. Override with DB_PORT if
+      # 5433 is taken too: `DB_PORT=5434 docker compose up -d db`. The app reaches
+      # the DB over the internal compose network as `db:5432` regardless.
+      - "${DB_PORT:-5433}:5432"
     volumes:
       - cartographer-db:/var/lib/postgresql/data
     healthcheck:
