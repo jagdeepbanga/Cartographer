@@ -210,45 +210,6 @@ under $150."*
 
 ---
 
-## Locking the demo behind a password
-
-A public deployment means anyone who finds the URL can send chat requests, and
-each one costs a slice of a daily model quota that is not large. `proxy.ts` puts
-a single shared password in front of **every page and API route** using HTTP
-Basic auth.
-
-Set one variable in Vercel and redeploy:
-
-```
-DEMO_PASSWORD=<whatever you want to share>
-```
-
-- **Unset it and the gate disappears.** Local development and the Docker image
-  are unaffected because neither sets it.
-- **Any username works** — the password is the whole secret, so there is one
-  credential to pass along rather than a pair to coordinate.
-- The browser prompts once and then replays the credentials on every same-origin
-  request, so the SSE chat stream is covered with no client-side changes.
-- Static assets (`_next/static`, `_next/image`, the favicon) are excluded from the
-  matcher, since challenging those would break the page before it renders.
-
-Verified against a production build: no credentials → 401 with a
-`WWW-Authenticate` challenge, wrong password → 401, correct password → 200, and
-`/api/cart` → 401 until authenticated.
-
-Basic auth sends the password base64-encoded, not encrypted — it is only private
-because Vercel serves everything over HTTPS. That is the right level of effort
-for keeping strangers off a demo quota; it is not a login system, so don't put
-anything sensitive behind it.
-
-Vercel also offers Deployment Protection natively. Its "Vercel Authentication"
-mode restricts access to your own Vercel account, which is awkward for sharing a
-link with someone who has no account; password protection is a paid add-on on
-some plans. Check the current plan details in the dashboard — `proxy.ts` costs
-nothing and works on any host.
-
----
-
 ## Free-tier limits worth knowing before a demo
 
 - **Function duration.** The default is **300s on all plans, Hobby included**
