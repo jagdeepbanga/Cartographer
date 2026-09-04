@@ -208,6 +208,45 @@ pnpm dlx vercel@latest --prod # production deploy
 Open the URL and try: *"I'm 30 with sensitive skin. I want a daily face routine
 under $150."*
 
+### Automatic preview deployments are off
+
+`vercel.json` disables automatic deployments for every branch except `master`:
+
+```json
+"git": { "deploymentEnabled": { "*": false, "**": false, "master": true } }
+```
+
+This repo is public, and `/api/chat` has no auth or rate limit — every preview
+URL is another unauthenticated endpoint spending the LLM key behind it. A preview
+URL is not private either: GitHub publishes it on the repo's Deployments API,
+readable by anyone, whether or not the Vercel bot comments on the pull request.
+Silencing the bot hides the link from the PR page, not from the API. Not building
+the preview at all is the part that actually removes the exposure.
+
+Three details in that config are easy to get wrong:
+
+- **Unspecified branches default to `true`.** Listing only `"master": true` would
+  change nothing — the `false` entries are what does the work.
+- **Both `*` and `**` are listed** because Vercel matches with
+  [minimatch](https://github.com/isaacs/minimatch), where `*` stops at a slash.
+  Without `**`, a branch named `feat/thing` would fall through to the default and
+  deploy.
+- **`master` still deploys** because when a branch matches several rules and any
+  one of them is `true`, the deployment happens. `master` matches all three
+  entries, so production is unaffected.
+
+Vercel reads this file from the commit being pushed, so it takes effect on
+branches that actually contain it — a branch cut before this landed keeps
+deploying until it is rebased onto `master`.
+
+To deploy a branch on purpose, use the CLI (`pnpm dlx vercel@latest`), which is
+unaffected by this setting. To re-enable previews for a branch pattern, add it
+with `true`.
+
+> Comment toggles are dashboard-only and are a separate concern: **Settings → Git
+> → Connected Git Repository**. The old `github.silent` property in `vercel.json`
+> is deprecated; Vercel migrates it to those toggles automatically.
+
 ---
 
 ## Free-tier limits worth knowing before a demo
