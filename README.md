@@ -92,6 +92,9 @@ OPENROUTER_API_KEY=sk-or-...
 # Set the active provider (anthropic | openai | google | openrouter)
 LLM_PROVIDER=google
 
+# Embedding provider — separate from LLM_PROVIDER (openai | google, default openai)
+EMBEDDING_PROVIDER=openai
+
 # Postgres — see step 3 (default works with the Docker command below)
 DATABASE_URL=postgresql://postgres:postgres@localhost:5432/cartographer
 
@@ -103,13 +106,25 @@ DOMAIN=beauty
 
 ### 3. Start Postgres
 
+The image must ship **pgvector** — the stock `postgres` image does not, and the
+schema enables the `vector` extension for semantic search.
+
 ```bash
 docker run --name cartographer-db \
   -e POSTGRES_PASSWORD=postgres \
-  -p 5432:5432 -d postgres
+  -p 5432:5432 -d pgvector/pgvector:pg16
 
 docker exec -it cartographer-db psql -U postgres -c "CREATE DATABASE cartographer;"
 ```
+
+Or use compose, which already points at that image: `docker compose up -d db`
+(published on host port 5433 — see [Running in Docker](#running-in-docker)).
+
+> **Upgrading an existing local database?** If you previously ran the stock
+> `postgres` image, delete the old volume before switching — the two images are
+> built on different Debian releases and Postgres will warn about a collation
+> version mismatch. `docker compose down -v && docker compose up -d db`, then
+> re-seed. It is a throwaway dev database.
 
 ### 4. Run schema migrations and seed data
 
@@ -123,7 +138,19 @@ Running schema migrations...
 Schema ready.
 Seeding beauty products...
 Done — 39 products inserted (0 already existed).
+Embedding 39 products with openai/text-embedding-3-small (1536d)...
+Embedded 39 products.
 ```
+
+Seeding also embeds the catalogue, so it needs the embedding provider's API key
+(`OPENAI_API_KEY` by default). Without one it stops with an error naming the exact
+variable rather than writing empty vectors. Re-running is cheap: a product whose
+text has not changed is not re-embedded, and a fully unchanged catalogue costs
+zero API calls.
+
+For the zero-key demo, `MOCK_LLM=true pnpm db:seed` skips embedding entirely and
+seeds products with `NULL` vectors — semantic search then falls back to the
+keyword path.
 
 ### 5. Start the dev server
 
@@ -230,6 +257,44 @@ No code changes needed — the Vercel AI SDK normalises tool use and streaming a
 
 ---
 
+## Embeddings
+
+Semantic retrieval needs vectors, and the chat provider cannot supply them:
+**Anthropic ships no embeddings API** and is one of the four `LLM_PROVIDER`
+choices. So the embedding provider is configured **independently**, with its own
+variables and its own default:
+
+```env
+EMBEDDING_PROVIDER=openai                 # openai | google (default: openai)
+EMBEDDING_MODEL=text-embedding-3-small    # optional — per-provider default below
+# EMBEDDING_DIMENSIONS=1536               # optional — the model's default otherwise
+```
+
+| Provider | Default model | Dimensions | Key |
+| --- | --- | --- | --- |
+| `openai` | `text-embedding-3-small` | 1536 | `OPENAI_API_KEY` |
+| `google` | `gemini-embedding-001` | 3072 | `GOOGLE_GENERATIVE_AI_API_KEY` |
+
+Each product gets **one embedding, over the whole record** — no sub-document
+chunks. The rationale lives next to the code that assembles the document, in
+`db/seed/document.ts`.
+
+**No embedding key?** Seeding stops with an error naming the variable to set. If
+your only key is a chat key for a provider with no embeddings API (Anthropic),
+either set `EMBEDDING_PROVIDER` to one you do have a key for, or seed with
+`MOCK_LLM=true` to skip embedding and stay on the keyword path.
+
+**Changing the embedding model.** `products.embedding` is a `vector(n)` column
+stamped from `EMBEDDING_DIMENSIONS`, and Postgres cannot resize one in place. The
+seed detects the mismatch and tells you what to run:
+
+```bash
+psql "$DATABASE_URL" -c 'ALTER TABLE products DROP COLUMN embedding'
+pnpm db:seed
+```
+
+---
+
 ## Switching product domains
 
 Change `DOMAIN` in `.env.local` and restart:
@@ -290,9 +355,11 @@ Hobby plan + a free Neon Postgres — $0, ~10 minutes. Full walkthrough:
 # 1. Import the repo at vercel.com → Add New… → Project
 # 2. Storage → Create Database → Neon (Postgres), Free plan  → sets DATABASE_URL
 # 3. Seed the remote DB from your laptop
-DATABASE_URL="postgresql://…" pnpm db:seed:remote
+DATABASE_URL="postgresql://…" OPENAI_API_KEY=sk-… pnpm db:seed:remote
 # 4. git push  → deploys
 ```
+
+Neon ships pgvector, so the seed path is identical to local — no extra step.
 
 Set `MOCK_LLM=true` in the Vercel env vars for a demo that needs **no API key**
 at all — scripted agent loop, real products, real cart, real streaming.
