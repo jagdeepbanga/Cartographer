@@ -4,6 +4,7 @@ import { openai } from '@ai-sdk/openai';
 import { google } from '@ai-sdk/google';
 import { openrouter } from '@openrouter/ai-sdk-provider';
 import { loadDomainConfig } from '@/domain.config';
+import { isMockMode } from '@/lib/config';
 import { buildSystemPrompt } from './system-prompt';
 import { buildTools } from './tool-registry';
 import { runMockAgentLoop } from './mock-loop';
@@ -32,7 +33,7 @@ export async function runAgentLoop(
   sessionId: string,
   send: (event: SSEEvent) => void
 ): Promise<ChatMessage[]> {
-  if (process.env.MOCK_LLM === 'true') {
+  if (isMockMode()) {
     return runMockAgentLoop(messages, sessionId, send);
   }
 

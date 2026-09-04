@@ -124,9 +124,14 @@ and the same code still works against your Docker Postgres.
 
 ### Extensions
 
-`db/schema.sql` needs exactly one extension, `pgcrypto` (for `gen_random_uuid()`).
-It is available on Neon, Supabase and RDS, and `CREATE EXTENSION IF NOT EXISTS`
-runs as part of seeding. No other extension is required.
+`db/schema.sql` needs two extensions: `pgcrypto` (for `gen_random_uuid()`) and
+`vector` (pgvector, for the product embeddings). Both are available on Neon,
+Supabase and RDS, and `CREATE EXTENSION IF NOT EXISTS` runs as part of seeding —
+**no extra step is needed on Neon**, and nothing to enable in its dashboard. No
+other extension is required.
+
+Locally, pgvector comes from the `pgvector/pgvector:pg16` image; the stock
+`postgres` image does not ship it.
 
 ### Other providers
 
@@ -144,6 +149,8 @@ Development.
 | --- | --- | --- |
 | `DATABASE_URL` | *(auto-set by the Neon integration)* | Required. |
 | `LLM_PROVIDER` | `openrouter` | `anthropic` \| `openai` \| `google` \| `openrouter` |
+| `EMBEDDING_PROVIDER` | `openai` | `openai` \| `google`. Separate from `LLM_PROVIDER` — Anthropic has no embeddings API. Only the seed uses it; the deployed app reads the vectors. |
+| `EMBEDDING_MODEL` | *(unset)* | Defaults to `text-embedding-3-small` (openai) / `gemini-embedding-001` (google). |
 | `OPENROUTER_API_KEY` | your key | Or the key matching the provider you chose. |
 | `OPENROUTER_MODEL` | `minimax/minimax-m2.7:free` | Free, tool-capable default. |
 | `DOMAIN` | `beauty` | Or `electronics`. |
@@ -164,16 +171,23 @@ once from your laptop.
 Copy the **direct** connection string from Vercel (Storage → your database →
 Connection string), then:
 
-```bash
-# Schema + 39 beauty products. Idempotent — skips rows that already exist.
-DATABASE_URL="postgresql://…" pnpm db:seed:remote
+Seeding also embeds the catalogue, so the shell needs the embedding provider's
+API key as well as `DATABASE_URL`:
 
-# Or wipe and re-seed from scratch (TRUNCATE + insert)
-DATABASE_URL="postgresql://…" pnpm db:reset:remote
+```bash
+# Schema + 39 beauty products + embeddings. Idempotent — skips rows that already
+# exist, and re-embeds only products whose text changed.
+DATABASE_URL="postgresql://…" OPENAI_API_KEY="sk-…" pnpm db:seed:remote
+
+# Or wipe and re-seed from scratch (TRUNCATE + insert + embed)
+DATABASE_URL="postgresql://…" OPENAI_API_KEY="sk-…" pnpm db:reset:remote
 ```
 
 Both scripts apply `db/schema.sql` first, so this creates the tables, indexes and
-the `pgcrypto` extension as well — there is no separate migration step.
+the `pgcrypto` and `vector` extensions as well — there is no separate migration
+step. Without an embedding key the seed stops with an error naming the missing
+variable rather than writing `NULL` vectors; `MOCK_LLM=true` skips embedding
+deliberately, for the zero-key demo.
 
 These two scripts read `DATABASE_URL` from the shell. The plain `pnpm db:seed` /
 `pnpm db:reset` variants read `.env.local` instead and are for local development —
@@ -270,6 +284,8 @@ with `true`.
 | Symptom | Cause | Fix |
 | --- | --- | --- |
 | `relation "products" does not exist` | Database never seeded | Run step 3. |
+| `type "vector" does not exist` | Postgres without pgvector (e.g. the stock `postgres` Docker image) | Use `pgvector/pgvector:pg16` locally; on Neon/Supabase/RDS the extension is available and the seed enables it. |
+| `OPENAI_API_KEY is not set…` | Seeding without an embedding key | Export the key named in the message, switch `EMBEDDING_PROVIDER`, or set `MOCK_LLM=true` to seed without embeddings. |
 | `no pg_hba.conf entry … no encryption` | TLS not negotiated | Make sure the host in `DATABASE_URL` isn't `localhost`; `db/client.ts` keys TLS off that. |
 | `too many connections` | Direct (unpooled) string in production | Use the pooled connection string for `DATABASE_URL` in Vercel. |
 | Chat streams nothing, 500 in logs | Missing/invalid provider key | Check Runtime Logs; or set `MOCK_LLM=true`. |

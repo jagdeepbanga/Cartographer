@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "test": "node --import tsx --test \"db/**/*.test.ts\" \"lib/**/*.test.ts\"",
     "db:seed": "tsx --env-file=.env.local db/seed/run.ts",
     "db:reset": "tsx --env-file=.env.local db/seed/reset.ts",
     "db:seed:docker": "tsx db/seed/run.ts",

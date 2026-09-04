@@ -8,7 +8,10 @@
 
 services:
   db:
-    image: postgres:16
+    # pgvector's image is the stock postgres image plus the `vector` extension —
+    # same data directory layout, same major version, so an existing volume keeps
+    # working. The stock `postgres` image cannot run CREATE EXTENSION vector.
+    image: pgvector/pgvector:pg16
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -55,6 +58,10 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    # Seeding embeds the catalogue, so the seed container needs the embedding
+    # provider's API key — not just DATABASE_URL.
+    env_file:
+      - .env.local
     environment:
       DATABASE_URL: postgresql://postgres:postgres@db:5432/cartographer
     command: ["pnpm", "db:seed:docker"]
